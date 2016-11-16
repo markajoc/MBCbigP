@@ -15,3 +15,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// test_add
+NumericVector test_add(NumericVector a, NumericVector b);
+RcppExport SEXP MBCbigP_test_add(SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type a(aSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type b(bSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_add(a, b));
+    return rcpp_result_gen;
+END_RCPP
+}

@@ -5,3 +5,7 @@ rcpp_hello_world <- function() {
     .Call('MBCbigP_rcpp_hello_world', PACKAGE = 'MBCbigP')
 }
 
+test_add <- function(a, b) {
+    .Call('MBCbigP_test_add', PACKAGE = 'MBCbigP', a, b)
+}
+
