@@ -1,3 +1,19 @@
+#' @title Fit a mixture of multivariate Gaussians
+#'
+#' @description Fit a mixture of multivariate Gaussians
+#'
+#' @param x Data frame or a matrix
+#' @param groups The number of groups/mixture components to fit.
+#' @param maxiter The maximum number of iterations for the E-M algorithm.
+#'
+#' @return A list containing the estimated parameters for the mixture
+#'   distribution.
+#'
+#' @examples
+#' library(mclust)
+#' data(banknote)
+#' mbc(x = banknote[, -1], groups = 2)
+
 mbc <-
 function (x, groups, maxiter = 500)
 {
@@ -92,5 +108,5 @@ function (x, groups, maxiter = 500)
         break
     }
   }
-  structure(list(mean = mu, sigma = sigma), class = "mbc")
+  structure(list(mixing = alpha, mean = mu, sigma = sigma), class = "mbc")
 }
