@@ -10,3 +10,4 @@ License: GPL (>= 2)
 Imports: Rcpp (>= 0.12.7), mclust (>= 5.2), mvtnorm
 Suggest: testthat
 LinkingTo: Rcpp
+RoxygenNote: 5.0.1.9000
