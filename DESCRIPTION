@@ -8,4 +8,5 @@ Maintainer: Mark O'Connell <moconnell@ucd.ie>
 Description: Model-based clustering for high-dimensional data.
 License: GPL (>= 2)
 Imports: Rcpp (>= 0.12.7), mclust (>= 5.2), mvtnorm
+Suggest: testthat
 LinkingTo: Rcpp
