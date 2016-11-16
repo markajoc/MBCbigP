@@ -17,6 +17,7 @@
 mbc <-
 function (x, groups, maxiter = 500)
 {
+  x <- data.matrix(x)
   N <- nrow(x)
   p <- ncol(x)
   K <- groups
@@ -26,8 +27,8 @@ function (x, groups, maxiter = 500)
   alpha <- alpha1 <- rep(1 / K, K)
 
   ## Initialise means and covariance matrices (need to be positive-definite).
-  ## Variables tagged with 1 are for the parallel calculations using `mclust` for
-  ## comparison.
+  ## Variables tagged with 1 are for the parallel calculations using `mclust`
+  ## for comparison.
 
   mu <- mu1 <- t(stats::kmeans(x, K)$centers)
 
