@@ -32,15 +32,15 @@ function (x, groups, maxiter = 500)
 
   mu <- mu1 <- t(stats::kmeans(x, K)$centers)
 
-  sigma <- sigma1 <- array(dim = c(p, p, K))
+  sigma <- array(dim = c(p, p, K))
   tmp <- mclust::mclustVariance("VVV", d = p, G = K)$cholsigma
   for (k in 1:K){
-    sigma[, , k] <- sigma1[, , k] <- tmp[, , k] %*% t(tmp[, , k])
+    sigma[, , k] <- 10 * tmp[, , k] %*% t(tmp[, , k])
   }
 
   ## Initialise z matrix
 
-  z <- z1 <- matrix(ncol = K, nrow = nrow(x))
+  z <- matrix(ncol = K, nrow = N)
 
   ## Initialise NULL log-likelihoods
 
@@ -55,20 +55,20 @@ function (x, groups, maxiter = 500)
       z[, k] <- alpha[k] * mvtnorm::dmvnorm(x = x, mean = mu[, k], sigma =
         sigma[, , k])
     }
+    zrm <- rowSums(z)
+    z <- apply(z, 2, `/`, zrm)
 
     ## Using `mclust`. Needs the upper-triangular Cholesky decomposition of the
     ## covariance matrices.
 
-    tmp <- apply(sigma1, 3L, chol)
-    cholsigma <- array(0, dim = c(p, p, K))
-    for (k in 1:K){
-      cholsigma[, , k] <- tmp[, k]
-    }
-    z1 <- mclust::estep("VVV", data = x, parameters = list(pro = alpha1, mean =
-      mu1, variance = list(cholsigma = cholsigma)))$z
+    #tmp <- apply(sigma1, 3L, chol)
+    #cholsigma <- array(0, dim = c(p, p, K))
+    #for (k in 1:K){
+    #  cholsigma[, , k] <- tmp[, k]
+    #}
+    #z1 <- mclust::estep("VVV", data = x, parameters = list(pro = alpha1, mean =
+    #  mu1, variance = list(cholsigma = cholsigma)))$z
 
-    zrm <- rowSums(z)
-    z <- apply(z, 2, `/`, zrm)
 
     ## Calculate maximum likelihood estimates for the mixing proportions, means
     ## and covariance matrices
@@ -82,23 +82,22 @@ function (x, groups, maxiter = 500)
 
     ## Using `mclust`.
 
-    params <- mclust::mstep("VVV", x, z1)
+    #params <- mclust::mstep("VVV", x, z1)
 
-    alpha1 <- params$parameters$pro
-    mu1 <- params$parameters$mean
-    sigma1 <- params$parameters$variance$sigma
+    #alpha1 <- params$parameters$pro
+    #mu1 <- params$parameters$mean
+    #sigma1 <- params$parameters$variance$sigma
 
     if (!is.null(loglik))
       loglikprevious <- loglik
 
     ## Calculate log-likelihood.
 
-    tmp <- matrix(as.double(NA), N, K)
-    for (k in 1:K){
-      tmp[,k] <- params$parameters$pro[k] * mvtnorm::dmvnorm(x, mu1[, k],
-        sigma1[, , k])
-    }
-    loglik <- sum(log(rowSums(tmp)))
+    #tmp <- matrix(as.double(NA), N, K)
+    #for (k in 1:K){
+    #  tmp[, k] <- alpha[k] * mvtnorm::dmvnorm(x, mu[, k], sigma[, , k])
+    #}
+    #loglik <- sum(log(rowSums(tmp)))
 
     ## If we have a previous log-likelihood, check that we are not decreasing
     ## the log-likelihood. If we are not increasing it by much, break the loop.
@@ -109,5 +108,6 @@ function (x, groups, maxiter = 500)
         break
     }
   }
-  structure(list(mixing = alpha, mean = mu, sigma = sigma), class = "mbc")
+  structure(list(mixing = alpha, mean = mu, sigma = sigma, groupprob = z),
+    class = "mbc")
 }
