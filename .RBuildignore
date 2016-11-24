@@ -1,0 +1,6 @@
+.git/
+.gitignore
+.Rapp.history
+^\.travis\.yml$
+roxy.R
+rcpp.R
