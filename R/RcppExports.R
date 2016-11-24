@@ -5,6 +5,11 @@ rcpp_hello_world <- function() {
     .Call('MBCbigP_rcpp_hello_world', PACKAGE = 'MBCbigP')
 }
 
+#' @title Sum two numbers
+#' @description Sum two numbers
+#' @param a A number
+#' @param b Another number
+#'
 test_add <- function(a, b) {
     .Call('MBCbigP_test_add', PACKAGE = 'MBCbigP', a, b)
 }
