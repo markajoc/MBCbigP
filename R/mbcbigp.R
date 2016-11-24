@@ -4,6 +4,8 @@
 #'
 #' @param x Data frame or a matrix
 #' @param groups The number of groups/mixture components to fit.
+#' @param batches The number of batches to split the columns of \code{x} for
+#'   processing.
 #' @param maxiter The maximum number of iterations for the E-M algorithm.
 #'
 #' @return A list containing the estimated parameters for the mixture
@@ -46,8 +48,6 @@ function (x, groups, batches = 3, maxiter = 200)
   batchindex <- which(batches == 1L)
 
   mu[, batchindex] <- (stats::kmeans(x[, batchindex, drop = FALSE], K)$centers)
-
-  print(mu)
 
   tmp <- mclust::mclustVariance("VVV", d = p, G = K)$cholsigma
   for (k in 1:K){
@@ -102,8 +102,9 @@ function (x, groups, batches = 3, maxiter = 200)
     for (times in 1:maxiter){
       for (k in 1:K){
         sigma[prevbatchindex, batchindex, k] <-
-        sigma[batchindex, prevbatchindex, k] <- cov_q_qminus1[, , k] <- cov.wt(x,
-          wt = z[, k], method = "ML")$cov[prevbatchindex, batchindex]
+        sigma[batchindex, prevbatchindex, k] <-
+        cov_q_qminus1[, , k] <- var.wt(x[, prevbatchindex], x[, batchindex], w =
+          z[, k], method = "ML")
 
         mu_conditional[k, ] <- apply(x[, batchindex, drop = FALSE], 2,
           weighted.mean, w = z[, k])
