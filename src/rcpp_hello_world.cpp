@@ -11,6 +11,11 @@ List rcpp_hello_world()
   return z;
 }
 
+//' @title Sum two numbers
+//' @description Sum two numbers
+//' @param a A number
+//' @param b Another number
+//'
 // [[Rcpp::export]]
 NumericVector test_add(NumericVector a, NumericVector b)
 {
