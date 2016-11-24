@@ -1,6 +1,6 @@
 Package: MBCbigP
 Type: Package
-Title: Model-based Clustering for High-dimensional Data
+Title: Model-Based Clustering for High-Dimensional Data
 Version: 0.0
 Date: 2016-11-15
 Authors@R: c(
@@ -11,6 +11,6 @@ Maintainer: Mark O'Connell <moconnell@ucd.ie>
 Description: Model-based clustering for high-dimensional data.
 License: GPL (>= 2)
 Imports: Rcpp (>= 0.12.7), mclust (>= 5.0), mvtnorm, stats
-Suggest: testthat
+Suggests: testthat
 LinkingTo: Rcpp
 RoxygenNote: 5.0.1.9000
