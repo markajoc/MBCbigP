@@ -57,13 +57,17 @@ function (x, groups, batches = 3, maxiter = 200)
   rm(tmp)
 
   for (times in 1:maxiter){
+
+    ## Expectation
+
     for (k in 1:K){
       z[, k] <- alpha[k] * mvtnorm::dmvnorm(x = x[, batchindex, drop = FALSE],
         mean = mu[k, batchindex, drop = FALSE], sigma = sigma[batchindex,
         batchindex, k])
     }
-    zrm <- rowSums(z)
-    z <- apply(z, 2, `/`, zrm)
+    z <- apply(z, 2, `/`, rowSums(z))
+
+    ## Maximise
 
     alpha <- colMeans(z)
 
@@ -76,46 +80,84 @@ function (x, groups, batches = 3, maxiter = 200)
   }
 
   ## Other batches
+
   for (q in 2:Q){
+
+    ## Expectation from previous batch
 
     for (k in 1:K){
       z[, k] <- alpha[k] * mvtnorm::dmvnorm(x = x[, batchindex, drop = FALSE],
         mean = mu[k, batchindex, drop = FALSE], sigma = sigma[batchindex,
         batchindex, k])
     }
-    zrm <- rowSums(z)
-    z <- apply(z, 2, `/`, zrm)
+    z <- apply(z, 2, `/`, rowSums(z))
 
     alpha <- colMeans(z)
+
+    ## Set up batch indices
 
     prevbatchindex <- batchindex
     batchindex <- which(batches == q)
     batchsize <- length(batchindex)
+
+    ## Set up arrays for the off-diagonal covariance matrix, and the conditional
+    ## parameter estimates
+
     cov_q_qminus1 <- array(dim = c(length(prevbatchindex), batchsize,
       K))
     mu_conditional <- matrix(ncol = batchsize, nrow = K)
     sigma_conditional <- array(dim = c(batchsize, batchsize, K))
+
+    ## Calculate the inverse of the covariance of the previous batch.
+
     precision <- list()
     for (k in 1:K){
       precision[[k]] <- solve(sigma[prevbatchindex, prevbatchindex, k])
     }
+
+    ## Start iterations.
+
     for (times in 1:maxiter){
+
+      ## Calculate the conditional means and covariances.
+
       for (k in 1:K){
+        mu_conditional[k, ] <- apply(x[, batchindex, drop = FALSE], 2,
+          weighted.mean, w = z[, k])
+        sigma_conditional[, , k] <- cov.wt(x[, batchindex, drop = FALSE],
+          wt = z[, k], method = "ML")$cov
+      }
+
+      ## Expectation.
+
+      for (k in 1:K){
+        z[, k] <- alpha[k] * mvtnorm::dmvnorm(x = x[, batchindex, drop = FALSE],
+          mean = mu_conditional[k, ], sigma = sigma_conditional[, , k])
+      }
+      z <- apply(z, 2, `/`, rowSums(z))
+
+      ## Calculate parameter estimates
+
+      for (k in 1:K){
+
+        ## Covariance between current batch and previous batch.
+
         sigma[prevbatchindex, batchindex, k] <-
         sigma[batchindex, prevbatchindex, k] <-
         cov_q_qminus1[, , k] <- var.wt(x[, prevbatchindex], x[, batchindex], w =
           z[, k], method = "ML")
 
-        mu_conditional[k, ] <- apply(x[, batchindex, drop = FALSE], 2,
-          weighted.mean, w = z[, k])
+        ## Mean vectors
 
-        #extrabit <- - cov_q_qminus1[, , k] %*% precision[[k]] %*%
-        #  colMeans(x[, prevbatchindex] - mu[k, prevbatchindex])
-        #print(extrabit)
+        extrabit <- - cov_q_qminus1[, , k] %*% precision[[k]] %*% colSums(z[, k]
+          * (x[, prevbatchindex, drop = FALSE] - mu[rep(k, N), prevbatchindex, drop =
+          FALSE]))
+        print(extrabit)
+
         mu[k, batchindex] <- mu_conditional[k, ]
 
-        sigma_conditional[, , k] <- cov.wt(x[, batchindex, drop = FALSE],
-          wt = z[, k], method = "ML")$cov
+        ## Covariance matrices
+
         sigma[batchindex, batchindex, k] <- sigma_conditional[, , k] +
           t(cov_q_qminus1[, , k]) %*% precision[[k]] %*% cov_q_qminus1[, , k]
       }
