@@ -7,3 +7,5 @@ src-x64/
 R/RcppExports.R
 src/RcppExports.cpp
 .DS_Store
+*.tar.gz
+*.Rcheck/
