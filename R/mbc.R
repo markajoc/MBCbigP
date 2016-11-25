@@ -28,11 +28,6 @@ function (x, groups, maxiter = 500, likelihood = TRUE)
 
   z <- initialise.memberships(x, K)
 
-  ## Initialise empty means and covariance matrices.
-
-  mu <- matrix(nrow = p, ncol = K)
-  sigma <- array(dim = c(p, p, K))
-
   ## Initialise NULL log-likelihoods
 
   loglikprevious <- NULL
@@ -43,23 +38,14 @@ function (x, groups, maxiter = 500, likelihood = TRUE)
     ## Calculate maximum likelihood estimates for the mixing proportions, means
     ## and covariance matrices
 
-    alpha <- colMeans(z)
-
-    for (k in 1:K){
-      mu[, k] <- apply(x, 2, weighted.mean, w = z[, k])
-      sigma[, , k] <- cov.wt(x, wt = z[, k], method = "ML")$cov
-    }
+    parameters <- mstep(x, z, K, p)
 
     ## Calculate log-likelihood.
 
     if (!is.null(loglik))
       loglikprevious <- loglik
     if (likelihood){
-      tmp <- matrix(as.double(NA), N, K)
-      for (k in 1:K){
-        tmp[, k] <- alpha[k] * mvtnorm::dmvnorm(x, mu[, k], sigma[, , k])
-      }
-      loglik <- sum(log(rowSums(tmp)))
+      loglik <- calcloglik(x, parameters)
     }
 
     ## If we have a previous log-likelihood, check that we are not decreasing
@@ -73,13 +59,9 @@ function (x, groups, maxiter = 500, likelihood = TRUE)
 
     ## Calculate expected z values
 
-    for (k in 1:K){
-      z[, k] <- alpha[k] * mvtnorm::dmvnorm(x = x, mean = mu[, k], sigma =
-        sigma[, , k])
-    }
-    zrm <- rowSums(z)
-    z <- apply(z, 2, `/`, zrm)
+    z <- estep(x, parameters)
   }
-  structure(list(mixing = alpha, mean = mu, sigma = sigma, groupprob = z, loglik
-    = loglik), class = "mbc")
+  parameters$groupprob <- z
+  parameters$loglik <- loglik
+  invisible(structure(parameters, class = "mbc"))
 }
