@@ -25,5 +25,5 @@ function (x, parameters)
 logLik.mbc <-
 function (object, ...)
 {
-
+  calcloglik(object)
 }
