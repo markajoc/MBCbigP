@@ -17,16 +17,15 @@
 #' mbc(x = banknote[, -1], groups = 2)
 
 mbc <-
-function (x, groups, maxiter = 500, likelihood = TRUE)
+function (x, groups = 2, maxiter = 500, likelihood = TRUE)
 {
   x <- data.matrix(x)
   N <- nrow(x)
   p <- ncol(x)
-  K <- groups
 
   ## Initialise z matrix.
 
-  z <- initialise.memberships(x, K)
+  z <- initialise.memberships(x, groups)
 
   ## Initialise NULL log-likelihoods
 
@@ -38,7 +37,7 @@ function (x, groups, maxiter = 500, likelihood = TRUE)
     ## Calculate maximum likelihood estimates for the mixing proportions, means
     ## and covariance matrices
 
-    parameters <- mstep(x, z, K, p)
+    parameters <- mstep(x, z, groups, p)
 
     ## Calculate log-likelihood.
 
