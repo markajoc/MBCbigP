@@ -4,19 +4,20 @@
 \alias{initialise.memberships}
 \title{Initialise parameters for Expectation-Maximisation algorithm}
 \usage{
-initialise.memberships(x, K)
+initialise.memberships(x, groups)
 }
 \arguments{
 \item{x}{A data frame containing continuous data.}
 
-\item{K}{The number of groups.}
+\item{groups}{The number of groups.}
 }
 \value{
-A K x N matrix of 0/1 entries.
+A \code{K} x \code{nrow(x)} matrix of 0/1 entries denoting cluster
+  membership.
 }
 \description{
-Initialise either the cluster membership matrix or the mixture
-  model parameters.
+Initialise the cluster membership matrix for the
+  Expectation-Maximisation algorithm for fitting a mixture of Gaussians.
 }
 \examples{
 data(mtcars)

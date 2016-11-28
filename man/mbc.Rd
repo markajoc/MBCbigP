@@ -4,7 +4,7 @@
 \alias{mbc}
 \title{Fit a mixture of multivariate Gaussians}
 \usage{
-mbc(x, groups, maxiter = 500, likelihood = TRUE)
+mbc(x, groups = 2, maxiter = 500, likelihood = TRUE)
 }
 \arguments{
 \item{x}{Data frame or a matrix}
