@@ -103,5 +103,5 @@ function (x, groups = 2, batches = 3, maxiter = 200)
       Sys.sleep(0.1)
     }
   }
-  invisible(structure(list(z = z), class = "mbc"))
+  invisible(structure(list(pro = colMeans(z), z = z), class = "mbc"))
 }
