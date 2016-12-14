@@ -43,6 +43,10 @@ function (x, y = NULL, w, method = c("unbiased", "ML")){
 
   ## Return either the unbiased or maximum likelihood (ML) covariance matrix
 
-  switch(match.arg(method), unbiased = crossprod(x, y) / (1 - sum(w ^ 2)),
-    ML = crossprod(x, y))
+  out <- switch(match.arg(method), unbiased = crossprod(x, y) / (1 - sum(w ^ 2))
+    , ML = crossprod(x, y))
+
+  rownames(out) <- colnames(x)
+  colnames(out) <- colnames(y)
+  out
 }
