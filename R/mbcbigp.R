@@ -24,8 +24,6 @@ function (x, groups = 2, batches = 3, maxiter = 200)
   x <- data.matrix(x)
   N <- nrow(x)
   p <- ncol(x)
-  K <- groups
-  Q <- batches
 
   if ((lb <- length(batches)) < 2){
     Q <- batches
@@ -37,7 +35,7 @@ function (x, groups = 2, batches = 3, maxiter = 200)
 
   ## Initialise membership probabilities
 
-  z <- initialise.memberships(x, K)
+  z <- initialise.memberships(x, groups)
 
   ## Do the first batch using marginal density.
 
@@ -78,17 +76,24 @@ function (x, groups = 2, batches = 3, maxiter = 200)
 
       parameters_old <- parameters
 
-      parameters <- mstep_cond(x1 = x[, batchindex, drop = FALSE], x2 = x[,
-        prevbatchindex, drop = FALSE], z, mu2 = parameters_old$mean, sigma2 =
-        parameters_old$sigma, groups = NULL, p = NULL)
+      parameters <- mstep_cond(
+        x1 = x[, batchindex, drop = FALSE],
+        x2 = x[, prevbatchindex, drop = FALSE],
+        z = z,
+        mu2 = parameters_old$mean,
+        sigma2 = parameters_old$sigma,
+        groups = groups,
+        p = NULL)
 
 print(parameters)
 
       ## Expectation.
 
-      z <- estep_cond(x1 = x[, batchindex, drop = FALSE], x2 = x[,
-        prevbatchindex, drop = FALSE], parameters1 = parameters, parameters2 =
-        parameters_old)
+      z <- estep_cond(
+        x1 = x[, batchindex, drop = FALSE],
+        x2 = x[, prevbatchindex, drop = FALSE],
+        parameters1 = parameters,
+        parameters2 = parameters_old)
     }
     plot(z[, 1L], ylim = 0:1, main = paste0("q = ", q))
     Sys.sleep(0.1)

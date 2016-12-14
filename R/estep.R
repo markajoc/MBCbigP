@@ -30,9 +30,9 @@ function (x1, x2, parameters1, parameters2)
   for (k in 1:parameters1$groups){
     sigma_cond <- sigma_conditional(sigma = parameters1$sigma[, , k], cov =
       parameters1$cov[, , k], precision_cond = parameters1$precision2[, , k])
-    mean_cond <- mean_conditional(mean = parameters1$mean[k, ], cov =
+    mean_cond <- mean_conditional(mean = parameters1$mean[, k], cov =
       parameters1$cov[, , k], precision_cond = parameters1$precision2[, , k],
-      x_cond = x2[, , drop = FALSE], mean_cond = parameters2$mean[k, ],
+      x_cond = x2[, , drop = FALSE], mean_cond = parameters2$mean[, k],
       sigma_cond = parameters2$sigma[, , k])
     for (i in 1:N){
 
@@ -40,7 +40,7 @@ cat("\n")
 print(log(parameters1$pro[k]))
 print(mvtnorm::dmvnorm(x = x1[i, ], mean =
   mean_cond[i, ], sigma = sigma_cond, log = TRUE))
-print(mvtnorm::dmvnorm(x = x2[i, ], mean = parameters2$mean[k, ], sigma =
+print(mvtnorm::dmvnorm(x = x2[i, ], mean = parameters2$mean[, k], sigma =
 parameters2$sigma[, , k], log = TRUE))
 print(x2[i, ])
 print(parameters2$mean[, k])

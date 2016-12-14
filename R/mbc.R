@@ -70,7 +70,7 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE)
   }
   if (verbose)
     cat("\n")
-  parameters$groupprob <- z
+  parameters$z <- z
   parameters$loglik <- loglik
   invisible(structure(parameters, class = "mbc"))
 }
