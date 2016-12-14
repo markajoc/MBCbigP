@@ -38,6 +38,8 @@ function (x, z, groups = NULL, p = NULL)
 mstep_cond <-
 function (x1, x2, z, precision2, mu2, sigma2, groups = NULL, p = NULL)
 {
+  ## Sort out inputs.
+
   x1 <- data.matrix(x1)
   x2 <- data.matrix(x2)
   groups <- if (is.null(groups))
@@ -55,9 +57,17 @@ function (x1, x2, z, precision2, mu2, sigma2, groups = NULL, p = NULL)
   mu2 <- if (missing(mu2))
     colMeans.weighted(x2, w = z[, k])
   else mu2
+
+  ## Prepare arrays.
+
   mu1 <- matrix(nrow = p, ncol = groups)
   sigma1 <- array(dim = c(ncol(x1), ncol(x1), groups))
   cov12 <- array(dim = c(ncol(x1), ncol(x2), groups))
+
+  ## For each group, calculate the covariance between batches, the mean adjusted
+  ## for the group probabilities (z), and the covariance matrix for the current
+  ## batch (should also be adjusted for z).
+
   for (k in 1:groups){
     cov12[, , k] <- var.wt(x1, x2, w = z[, k])
     mu1[, k] <- colMeans.weighted(x1, w = z[, k]) - cov12[, , k] %*% precision2[
