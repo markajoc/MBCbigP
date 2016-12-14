@@ -4,8 +4,6 @@
 src-i386/
 src-x64/
 .Rapp.history
-R/RcppExports.R
-src/RcppExports.cpp
 .DS_Store
 *.tar.gz
 *.Rcheck/

@@ -15,7 +15,7 @@ function (x, parameters)
   tmp <- matrix(as.double(NA), nrow(x), parameters$groups)
   for (k in 1:parameters$groups){
     tmp[, k] <- parameters$mixing[k] * mvtnorm::dmvnorm(x, parameters$mean[, k],
-      parameters$sigma[, , k])
+      as.matrix(parameters$sigma[, , k]))
   }
   sum(log(rowSums(tmp)))
 }

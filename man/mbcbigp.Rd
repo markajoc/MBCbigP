@@ -4,15 +4,17 @@
 \alias{mbcbigp}
 \title{Fit a mixture of multivariate Gaussians using sequential conditioning}
 \usage{
-mbcbigp(x, groups, batches = 3, maxiter = 200)
+mbcbigp(x, groups = 2, batches = 3, maxiter = 200)
 }
 \arguments{
 \item{x}{Data frame or a matrix}
 
 \item{groups}{The number of groups/mixture components to fit.}
 
-\item{batches}{The number of batches to split the columns of \code{x} for
-processing.}
+\item{batches}{The batches to split the columns of \code{x} for
+processing. A single number gives the desired number of batches, whereas a
+vector of length \code{ncol(x)} is treated as an integer index of batch
+membership.}
 
 \item{maxiter}{The maximum number of iterations for the E-M algorithm.}
 }

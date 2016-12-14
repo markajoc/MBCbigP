@@ -23,12 +23,10 @@ function (x, y = NULL, w, method = c("unbiased", "ML")){
 
   ## Check inputs
 
-  if (is.data.frame(x))
-    x <- as.matrix(x)
-  if (is.null(y))
-    y <- x
-  else if (is.data.frame(y))
-    y <- as.matrix(y)
+  x <- data.matrix(x)
+  y <- if (is.null(y))
+    x
+  else data.matrix(y)
   n <- nrow(x)
   stopifnot(n == nrow(y))
   w <- if (missing(w))

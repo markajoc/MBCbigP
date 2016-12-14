@@ -11,14 +11,49 @@
 estep <-
 function (x, parameters)
 {
-  K <- parameters$groups
-  alpha <- parameters$mixing
-  mu <- parameters$mean
-  sigma <- parameters$sigma
-  z <- matrix(nrow = nrow(x), ncol = K)
-  for (k in 1:K){
-    z[, k] <- alpha[k] * mvtnorm::dmvnorm(x = x, mean = mu[, k], sigma =
-      sigma[, , k])
+  x <- data.matrix(x)
+  z <- matrix(nrow = nrow(x), ncol = parameters$groups)
+  for (k in 1:parameters$groups){
+    z[, k] <- parameters$mixing[k] * mvtnorm::dmvnorm(x = x, mean =
+      parameters$mean[, k], sigma = as.matrix(parameters$sigma[, , k]))
   }
-  apply(z, 2, `/`, rowSums(z))
+  z / rowSums(z)
+}
+
+estep_cond <-
+function (x1, x2, parameters1, parameters2)
+{
+  x1 <- data.matrix(x1)
+  x2 <- data.matrix(x2)
+  N <- nrow(x1)
+  z <- matrix(nrow = N, ncol = parameters1$groups)
+  for (k in 1:parameters1$groups){
+    sigma_cond <- sigma_conditional(sigma = parameters1$sigma[, , k], cov =
+      parameters1$cov[, , k], precision_cond = parameters1$precision2[, , k])
+    mean_cond <- mean_conditional(mean = parameters1$mean[k, ], cov =
+      parameters1$cov[, , k], precision_cond = parameters1$precision2[, , k],
+      x_cond = x2[, , drop = FALSE], mean_cond = parameters2$mean[k, ],
+      sigma_cond = parameters2$sigma[, , k])
+    for (i in 1:N){
+
+cat("\n")
+print(log(parameters1$pro[k]))
+print(mvtnorm::dmvnorm(x = x1[i, ], mean =
+  mean_cond[i, ], sigma = sigma_cond, log = TRUE))
+print(mvtnorm::dmvnorm(x = x2[i, ], mean = parameters2$mean[k, ], sigma =
+parameters2$sigma[, , k], log = TRUE))
+print(x2[i, ])
+print(parameters2$mean[, k])
+print(parameters2$sigma[, , k])
+
+
+      z[i, k] <- log(parameters1$pro[k]) + mvtnorm::dmvnorm(x = x1[i, ], mean =
+        mean_cond[i, ], sigma = sigma_cond, log = TRUE) +
+        mvtnorm::dmvnorm(x = x2[i, ], mean = parameters2$mean[, k], sigma =
+        parameters2$sigma[, , k], log = TRUE)
+    }
+  }
+  z <- exp(z)
+  z <- z / rowSums(z)
+  z
 }

@@ -17,7 +17,7 @@
 #' mbc(x = banknote[, -1], groups = 2)
 
 mbc <-
-function (x, groups = 2, maxiter = 500, likelihood = TRUE)
+function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE)
 {
   x <- data.matrix(x)
   N <- nrow(x)
@@ -25,12 +25,17 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE)
 
   ## Initialise z matrix.
 
+  if (verbose)
+    cat("\nInitialising clusters...")
   z <- initialise.memberships(x, groups)
 
   ## Initialise NULL log-likelihoods
 
   loglikprevious <- NULL
   loglik <- NULL
+
+  if (verbose)
+    cat("\nStarting E-M iterations...")
 
   for (times in 1:maxiter){
 
@@ -43,7 +48,7 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE)
 
     if (!is.null(loglik))
       loglikprevious <- loglik
-    if (likelihood){
+    if (likelihood && (times %% 5 == 0)){
       loglik <- calcloglik(x, parameters)
     }
 
@@ -59,7 +64,12 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE)
     ## Calculate expected z values
 
     z <- estep(x, parameters)
+
+    if (verbose && (times %% 5 == 0))
+      cat("\nFinished iteration ", times)
   }
+  if (verbose)
+    cat("\n")
   parameters$groupprob <- z
   parameters$loglik <- loglik
   invisible(structure(parameters, class = "mbc"))
