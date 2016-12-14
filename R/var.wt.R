@@ -8,7 +8,7 @@
 #' @param y Data frame or a matrix with the same number of rows as \code{x}. If
 #'   left \code{NULL}, the covariance matrix of \code{x} is calculated.
 #' @param w A set of weights.
-#' @param method The type of estimate return, \code{"unbiased"} (default) or
+#' @param method The type of estimate returned, \code{"unbiased"} (default) or
 #'   \code{"ML"}, meaning maximum likelihood.
 #'
 #' @return A weighted covariance matrix.
