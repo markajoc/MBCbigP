@@ -14,7 +14,7 @@ left \code{NULL}, the covariance matrix of \code{x} is calculated.}
 
 \item{w}{A set of weights.}
 
-\item{method}{The type of estimate return, \code{"unbiased"} (default) or
+\item{method}{The type of estimate returned, \code{"unbiased"} (default) or
 \code{"ML"}, meaning maximum likelihood.}
 }
 \value{

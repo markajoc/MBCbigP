@@ -28,6 +28,7 @@ Fit a mixture of multivariate Gaussians
 \examples{
 library(mclust)
 data(banknote)
-mbc(x = banknote[, -1], groups = 2)
+mbcbigp(x = banknote[, -1], groups = 2, batches = 2)
+mbcbigp(x = banknote[, -1], groups = 2, batches = 3)
 }
 

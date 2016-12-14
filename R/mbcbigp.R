@@ -16,7 +16,8 @@
 #' @examples
 #' library(mclust)
 #' data(banknote)
-#' mbc(x = banknote[, -1], groups = 2)
+#' mbcbigp(x = banknote[, -1], groups = 2, batches = 2)
+#' mbcbigp(x = banknote[, -1], groups = 2, batches = 3)
 
 mbcbigp <-
 function (x, groups = 2, batches = 3, maxiter = 200)
@@ -40,8 +41,11 @@ function (x, groups = 2, batches = 3, maxiter = 200)
   ## Do the first batch using marginal density.
 
   batchindex <- which(batches == 1L)
+  cat("\n")
 
   for (times in 1:maxiter){
+
+    cat("Batch 1 , iteration ", times, "\n")
 
     ## Maximise
 
@@ -66,15 +70,17 @@ function (x, groups = 2, batches = 3, maxiter = 200)
     batchindex <- which(batches == q)
     batchsize <- length(batchindex)
 
+    ## Rename parameters from previous batch
+
+    parameters_old <- parameters
+    cat("\n")
+
     ## Start iterations.
 
     for (times in 1:maxiter){
-      cat("\n")
-      cat("Batch ", q, ", iteration ", times, "\n")
+      cat("Batch", q, ", iteration ", times, "\n")
 
       ## Maximisation.
-
-      parameters_old <- parameters
 
       parameters <- mstep_cond(
         x1 = x[, batchindex, drop = FALSE],
@@ -85,8 +91,6 @@ function (x, groups = 2, batches = 3, maxiter = 200)
         groups = groups,
         p = NULL)
 
-print(parameters)
-
       ## Expectation.
 
       z <- estep_cond(
@@ -94,9 +98,10 @@ print(parameters)
         x2 = x[, prevbatchindex, drop = FALSE],
         parameters1 = parameters,
         parameters2 = parameters_old)
+
+      plot(z[, 1L], ylim = 0:1, main = paste0("q = ", q))
+      Sys.sleep(0.1)
     }
-    plot(z[, 1L], ylim = 0:1, main = paste0("q = ", q))
-    Sys.sleep(0.1)
   }
-  structure(list(z = z), class = "mbc")
+  invisible(structure(list(z = z), class = "mbc"))
 }
