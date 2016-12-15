@@ -20,7 +20,7 @@
 #' mbcbigp(x = banknote[, -1], groups = 2, batches = 3)
 
 mbcbigp <-
-function (x, groups = 2, batches = 3, maxiter = 200)
+function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE)
 {
   x <- data.matrix(x)
   N <- nrow(x)
@@ -56,8 +56,8 @@ function (x, groups = 2, batches = 3, maxiter = 200)
 
     z <- estep(x[, batchindex, drop = FALSE], parameters)
 
-    plot(z[, 1L], ylim = 0:1, main = "q = 1")
-    Sys.sleep(0.1)
+    if (plot)
+      plot(z[, 1L], ylim = 0:1, main = "q = 1")
   }
 
   ## Other batches
@@ -99,8 +99,8 @@ function (x, groups = 2, batches = 3, maxiter = 200)
         parameters1 = parameters,
         parameters2 = parameters_old)
 
-      plot(z[, 1L], ylim = 0:1, main = paste0("q = ", q))
-      Sys.sleep(0.1)
+      if (plot)
+        plot(z[, 1L], ylim = 0:1, main = paste0("q = ", q))
     }
   }
   invisible(structure(list(pro = colMeans(z), z = z), class = "mbc"))
