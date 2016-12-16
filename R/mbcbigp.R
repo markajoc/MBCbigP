@@ -9,6 +9,10 @@
 #'   vector of length \code{ncol(x)} is treated as an integer index of batch
 #'   membership.
 #' @param maxiter The maximum number of iterations for the E-M algorithm.
+#' @param plot Logical, should a visualisation be produced to show progress.
+#' @param likelihood Logical, should the likelihood be calculated and used as a
+#'   stopping criterion.
+#' @param verbose Logical, should statements about progress be printed.
 #'
 #' @return A list containing the estimated parameters for the mixture
 #'   distribution.
@@ -20,40 +24,38 @@
 #' mbcbigp(x = banknote[, -1], groups = 2, batches = 3)
 
 mbcbigp <-
-function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE, likelihood =
-  FALSE, verbose = TRUE)
+function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 200, plot =
+  FALSE, likelihood = FALSE, verbose = TRUE)
 {
   x <- data.matrix(x)
   N <- nrow(x)
   p <- ncol(x)
 
-  if ((lb <- length(batches)) < 2){
-    Q <- batches
-    batches <- sort(rep(1:batches, length.out = ncol(x)))
-  } else {
-    stopifnot(identical(lb, p))
-    Q <- length(unique(batches))
+  if (is.null(batchindex)){
+    if ((lb <- length(batches)) < 2){
+      Q <- batches
+      batches <- sort(rep(1:batches, length.out = p))
+    } else {
+      stopifnot(identical(lb, p))
+    }
+    batchindex <- lapply(as.list(unique(batches)), function (o) which(o ==
+      batches))
   }
-
+  Q <- length(batchindex)
   if (plot)
     plotobject <- plotmbc(x, parameters = NULL, groups = groups)
 
   ## Do the first batch using marginal density.
 
-  batchindex <- which(batches == 1L)
-
   ## Initialise membership probabilities
 
-  z <- initialise.memberships(x[, batchindex, drop = FALSE], groups)
+  z <- initialise.memberships(x[, batchindex[[1L]], drop = FALSE], groups)
 
   ## Initialise NULL log-likelihoods
 
   loglikprevious <- NULL
   loglik <- NULL
 
-  ## Do the first batch using marginal density.
-
-  batchindex <- which(batches == 1L)
   cat("\n")
 
   for (times in 1:maxiter){
@@ -62,15 +64,15 @@ function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE, likelihood =
 
     ## Maximise
 
-    parameters <- mstep(x[, batchindex, drop = FALSE], z, groups, p = length(
-      batchindex))
+    parameters <- mstep(x[, batchindex[[1L]], drop = FALSE], z, groups, p = length(
+      batchindex[[1L]]))
 
     if (plot)
       plotobject <- update(plotobject, parameters)
 
     ## Expectation.
 
-    z <- estep(x[, batchindex, drop = FALSE], parameters)
+    z <- estep(x[, batchindex[[1L]], drop = FALSE], parameters)
 
     #if (plot)
     #  plot(z[, 1L], ylim = 0:1, main = "q = 1")
@@ -80,7 +82,7 @@ function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE, likelihood =
     if (!is.null(loglik))
       loglikprevious <- loglik
     if (likelihood && (times %% 5 == 0)){
-      loglik <- calcloglik(x[, batchindex], parameters)
+      loglik <- calcloglik(x[, batchindex[[1L]]], parameters)
     }
 
     ## If we have a previous log-likelihood, check that we are not decreasing
@@ -97,12 +99,6 @@ function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE, likelihood =
 
   for (q in 2:Q){
 
-    ## Set up batch indices
-
-    prevbatchindex <- batchindex
-    batchindex <- which(batches == q)
-    batchsize <- length(batchindex)
-
     ## Rename parameters from previous batch
 
     parameters_old <- parameters
@@ -116,8 +112,8 @@ function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE, likelihood =
       ## Maximisation.
 
       parameters <- mstep_cond(
-        x1 = x[, batchindex, drop = FALSE],
-        x2 = x[, prevbatchindex, drop = FALSE],
+        x1 = x[, batchindex[[q]], drop = FALSE],
+        x2 = x[, batchindex[[q - 1L]], drop = FALSE],
         z = z,
         mu2 = parameters_old$mean,
         sigma2 = parameters_old$sigma,
@@ -130,13 +126,13 @@ function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE, likelihood =
       ## Expectation.
 
       z <- estep_cond(
-        x1 = x[, batchindex, drop = FALSE],
-        x2 = x[, prevbatchindex, drop = FALSE],
+        x1 = x[, batchindex[[q]], drop = FALSE],
+        x2 = x[, batchindex[[q - 1L]], drop = FALSE],
         parameters1 = parameters,
         parameters2 = parameters_old)
 
       #if (plot)
-        #plot(z[, 1L], ylim = 0:1, main = paste0("q = ", q))
+      #  plot(z[, 1L], ylim = 0:1, main = paste0("q = ", q))
     }
   }
   invisible(structure(list(pro = colMeans(z), z = z), class = "mbc"))
