@@ -17,7 +17,8 @@
 #' mbc(x = banknote[, -1], groups = 2)
 
 mbc <-
-function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE)
+function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
+  = TRUE)
 {
   x <- data.matrix(x)
   N <- nrow(x)
@@ -37,12 +38,18 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE)
   if (verbose)
     cat("\nStarting E-M iterations...")
 
+  if (plot)
+    plotobj <- plotmbc(x = x, parameters = NULL, groups = groups, p = p)
+
   for (times in 1:maxiter){
 
     ## Calculate maximum likelihood estimates for the mixing proportions, means
     ## and covariance matrices
 
     parameters <- mstep(x, z, groups, p)
+
+    if (plot)
+      plotobj <- update.mbcplot(plotobj, parameters)
 
     ## Calculate log-likelihood.
 
@@ -72,5 +79,9 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE)
     cat("\n")
   parameters$z <- z
   parameters$loglik <- loglik
+
+  if (plot)
+    plotmbc(x = x, parameters = parameters, groups = groups, p = p)
+
   invisible(structure(parameters, class = "mbc"))
 }

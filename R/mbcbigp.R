@@ -21,7 +21,7 @@
 
 mbcbigp <-
 function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE, likelihood =
-  FALSE)
+  FALSE, verbose = TRUE)
 {
   x <- data.matrix(x)
   N <- nrow(x)
@@ -34,6 +34,9 @@ function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE, likelihood =
     stopifnot(identical(lb, p))
     Q <- length(unique(batches))
   }
+
+  if (plot)
+    plotobject <- plotmbc(x, parameters = NULL, groups = groups)
 
   ## Do the first batch using marginal density.
 
@@ -48,9 +51,9 @@ function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE, likelihood =
   loglikprevious <- NULL
   loglik <- NULL
 
-    ## Do the first batch using marginal density.
+  ## Do the first batch using marginal density.
 
-    batchindex <- which(batches == 1L)
+  batchindex <- which(batches == 1L)
   cat("\n")
 
   for (times in 1:maxiter){
@@ -62,19 +65,22 @@ function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE, likelihood =
     parameters <- mstep(x[, batchindex, drop = FALSE], z, groups, p = length(
       batchindex))
 
+    if (plot)
+      plotobject <- update(plotobject, parameters)
+
     ## Expectation.
 
     z <- estep(x[, batchindex, drop = FALSE], parameters)
 
-    if (plot)
-      plot(z[, 1L], ylim = 0:1, main = "q = 1")
+    #if (plot)
+    #  plot(z[, 1L], ylim = 0:1, main = "q = 1")
 
     ## Calculate log-likelihood.
 
     if (!is.null(loglik))
       loglikprevious <- loglik
     if (likelihood && (times %% 5 == 0)){
-      loglik <- calcloglik(x, parameters)
+      loglik <- calcloglik(x[, batchindex], parameters)
     }
 
     ## If we have a previous log-likelihood, check that we are not decreasing
@@ -118,6 +124,9 @@ function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE, likelihood =
         groups = groups,
         p = NULL)
 
+      if (plot)
+        plotobject <- update(plotobject, parameters)
+
       ## Expectation.
 
       z <- estep_cond(
@@ -126,8 +135,8 @@ function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE, likelihood =
         parameters1 = parameters,
         parameters2 = parameters_old)
 
-      if (plot)
-        plot(z[, 1L], ylim = 0:1, main = paste0("q = ", q))
+      #if (plot)
+        #plot(z[, 1L], ylim = 0:1, main = paste0("q = ", q))
     }
   }
   invisible(structure(list(pro = colMeans(z), z = z), class = "mbc"))

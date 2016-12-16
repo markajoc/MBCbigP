@@ -32,6 +32,7 @@ function (x, z, groups = NULL, p = NULL)
   }
   rownames(mu) <- colnames(x)
   colnames(mu) <- 1:groups
+  dimnames(sigma) <- list(colnames(x), colnames(x), 1:groups)
   list(mixing = mixing, mean = mu, sigma = sigma, groups = groups)
 }
 
@@ -77,6 +78,7 @@ function (x1, x2, z, precision2, mu2, sigma2, groups = NULL, p = NULL)
   }
   rownames(mu1) <- colnames(x1)
   colnames(mu1) <- 1:groups
+  dimnames(sigma1) <- list(colnames(x1), colnames(x1), 1:groups)
   structure(list(pro = colMeans(z), mean = mu1, sigma = sigma1, cov = cov12,
     precision2 = precision2, groups = groups), class = "mbcparameters")
 }
