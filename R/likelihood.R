@@ -22,6 +22,17 @@ function (x, parameters)
 
 #' @rdname calcloglik
 
+calcloglik_cond <-
+function(x1, x2, parameters1, parameters2)
+{
+  tmp <- matrix(as.double(NA), nrow(x), parameters1$groups)
+  for (k in 1:parameters1$groups){
+    tmp[, k] <- 0
+  }
+}
+
+#' @rdname calcloglik
+
 logLik.mbc <-
 function (object, ...)
 {

@@ -34,13 +34,22 @@ function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE)
     Q <- length(unique(batches))
   }
 
-  ## Initialise membership probabilities
-
-  z <- initialise.memberships(x, groups)
-
   ## Do the first batch using marginal density.
 
   batchindex <- which(batches == 1L)
+
+  ## Initialise membership probabilities
+
+  z <- initialise.memberships(x[, batchindex, drop = FALSE], groups)
+
+  ## Initialise NULL log-likelihoods
+
+  loglikprevious <- NULL
+  loglik <- NULL
+
+    ## Do the first batch using marginal density.
+
+    batchindex <- which(batches == 1L)
   cat("\n")
 
   for (times in 1:maxiter){
@@ -58,6 +67,23 @@ function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE)
 
     if (plot)
       plot(z[, 1L], ylim = 0:1, main = "q = 1")
+
+    ## Calculate log-likelihood.
+
+    if (!is.null(loglik))
+      loglikprevious <- loglik
+    if (likelihood && (times %% 5 == 0)){
+      loglik <- calcloglik(x, parameters)
+    }
+
+    ## If we have a previous log-likelihood, check that we are not decreasing
+    ## the log-likelihood. If we are not increasing it by much, break the loop.
+
+    if (!is.null(loglikprevious)){
+      stopifnot(loglik >= loglikprevious)
+      if (!(loglik > loglikprevious + (abs(loglikprevious) * 1e-5)))
+        break
+    }
   }
 
   ## Other batches
