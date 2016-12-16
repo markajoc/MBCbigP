@@ -20,7 +20,8 @@
 #' mbcbigp(x = banknote[, -1], groups = 2, batches = 3)
 
 mbcbigp <-
-function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE)
+function (x, groups = 2, batches = 3, maxiter = 200, plot = TRUE, likelihood =
+  FALSE)
 {
   x <- data.matrix(x)
   N <- nrow(x)

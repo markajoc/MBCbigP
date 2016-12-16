@@ -72,7 +72,8 @@ function (x1, x2, z, precision2, mu2, sigma2, groups = NULL, p = NULL)
     cov12[, , k] <- var.wt(x1, x2, w = z[, k])
     mu1[, k] <- colMeans.weighted(x1, w = z[, k]) - cov12[, , k] %*% precision2[
       , , k] %*% colMeans.weighted(sweep(x2, 2, mu2[, k]), w = z[, k])
-    sigma1[, , k] <- var.wt(x1, x1, w = z[, k])
+    sigma1[, , k] <- var.wt(x1, x1, w = z[, k]) + cov12[, , k] %*% precision2[,
+      , k] %*% t(cov12[, , k])
   }
   rownames(mu1) <- colnames(x1)
   colnames(mu1) <- 1:groups
