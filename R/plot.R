@@ -14,7 +14,8 @@ function (x, parameters, z, groups = NULL, p = NULL)
     scr2))
   rows <- rep(1:p, each = p)
   cols <- rep(1:p, p)
-  groupcolour <- rep(rainbow(min(max(3L, groups), 10L)), length.out = groups)
+  groupcolour <- rep(RColorBrewer::brewer.pal(n = 8, name = "Set1"), length.out
+    = groups)
 
   dev.hold()
   for (i in seq_along(scr2)){
