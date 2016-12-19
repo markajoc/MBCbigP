@@ -5,6 +5,7 @@
 #'
 #' @param x A data frame containing continuous data.
 #' @param groups The number of groups.
+#' @param method The method to give initial clustering.
 #'
 #' @return A \code{K} x \code{nrow(x)} matrix of 0/1 entries denoting cluster
 #'   membership.
@@ -14,7 +15,7 @@
 #' initialise.memberships(mtcars, 3)
 
 initialise.memberships <-
-function (x, groups)
+function (x, groups, method = c("kmeans", "hclust"))
 {
   cl <- stats::kmeans(x, groups)
   z <- model.matrix(~ as.factor(cl$cluster) - 1)
