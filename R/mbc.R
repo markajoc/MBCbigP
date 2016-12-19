@@ -18,7 +18,7 @@
 
 mbc <-
 function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
-  = TRUE)
+  = FALSE)
 {
   x <- data.matrix(x)
   N <- nrow(x)
