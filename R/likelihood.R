@@ -14,7 +14,7 @@ function (x, parameters)
 {
   tmp <- matrix(as.double(NA), nrow(x), parameters$groups)
   for (k in 1:parameters$groups){
-    tmp[, k] <- parameters$mixing[k] * mvtnorm::dmvnorm(x, parameters$mean[, k],
+    tmp[, k] <- parameters$pro[k] * mvtnorm::dmvnorm(x, parameters$mean[, k],
       as.matrix(parameters$sigma[, , k]))
   }
   sum(log(rowSums(tmp)))
@@ -27,7 +27,10 @@ function(x1, x2, parameters1, parameters2)
 {
   tmp <- matrix(as.double(NA), nrow(x), parameters1$groups)
   for (k in 1:parameters1$groups){
-    tmp[, k] <- 0
+    tmp[, k] <- parameters1$pro * mvtnorm::dmvnorm(x = x1, mean =
+      parameters1$mean[, k], sigma = as.matrix(parameters1$sigma[, , k])) *
+      mvtnorm::dmvnorm(x = x2, mean = parameters2$mean[, k], sigma = as.matrix(
+      parameters2$sigma[, , k]))
   }
 }
 
