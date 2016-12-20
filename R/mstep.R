@@ -23,7 +23,7 @@ function (x, z, groups = NULL, p = NULL)
   p <- if (is.null(p))
     ncol(x)
   else p
-  mixing <- colMeans(z)
+  pro <- colMeans(z)
   mu <- matrix(nrow = p, ncol = groups)
   sigma <- array(dim = c(p, p, groups))
   for (k in 1:groups){
@@ -33,7 +33,7 @@ function (x, z, groups = NULL, p = NULL)
   rownames(mu) <- colnames(x)
   colnames(mu) <- 1:groups
   dimnames(sigma) <- list(colnames(x), colnames(x), 1:groups)
-  list(mixing = mixing, mean = mu, sigma = sigma, groups = groups)
+  list(pro = pro, mean = mu, sigma = sigma, groups = groups)
 }
 
 mstep_cond <-
