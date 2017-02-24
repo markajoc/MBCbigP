@@ -4,7 +4,8 @@
 \alias{var.wt}
 \title{Calculate a weighted covariance matrix between two sets of columns}
 \usage{
-var.wt(x, y = NULL, w, method = c("unbiased", "ML"))
+var.wt(x, y = NULL, w, method = c("unbiased", "ML"), xcenter = NULL,
+  ycenter = NULL)
 }
 \arguments{
 \item{x}{Data frame or a matrix}

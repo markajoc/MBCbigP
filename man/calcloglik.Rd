@@ -2,10 +2,13 @@
 % Please edit documentation in R/likelihood.R
 \name{calcloglik}
 \alias{calcloglik}
+\alias{calcloglik_cond}
 \alias{logLik.mbc}
 \title{Calculate log-likelihood for a Gaussian mixture model.}
 \usage{
 calcloglik(x, parameters)
+
+calcloglik_cond(x1, x2, parameters1, parameters2)
 
 \method{logLik}{mbc}(object, ...)
 }

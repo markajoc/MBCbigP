@@ -4,7 +4,8 @@
 \alias{mbcbigp}
 \title{Fit a mixture of multivariate Gaussians using sequential conditioning}
 \usage{
-mbcbigp(x, groups = 2, batches = 3, maxiter = 200)
+mbcbigp(x, groups = 2, batches = 3, batchindex = NULL, maxiter = 10,
+  plot = FALSE, likelihood = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{x}{Data frame or a matrix}
@@ -17,6 +18,13 @@ vector of length \code{ncol(x)} is treated as an integer index of batch
 membership.}
 
 \item{maxiter}{The maximum number of iterations for the E-M algorithm.}
+
+\item{plot}{Logical, should a visualisation be produced to show progress.}
+
+\item{likelihood}{Logical, should the likelihood be calculated and used as a
+stopping criterion.}
+
+\item{verbose}{Logical, should statements about progress be printed.}
 }
 \value{
 A list containing the estimated parameters for the mixture
@@ -26,9 +34,10 @@ A list containing the estimated parameters for the mixture
 Fit a mixture of multivariate Gaussians
 }
 \examples{
-library(mclust)
-data(banknote)
+\dontrun{
+data(banknote, package = "mclust")
 mbcbigp(x = banknote[, -1], groups = 2, batches = 2)
 mbcbigp(x = banknote[, -1], groups = 2, batches = 3)
+}
 }
 

@@ -4,12 +4,14 @@
 \alias{initialise.memberships}
 \title{Initialise parameters for Expectation-Maximisation algorithm}
 \usage{
-initialise.memberships(x, groups)
+initialise.memberships(x, groups, method = c("kmeans", "hclust"))
 }
 \arguments{
 \item{x}{A data frame containing continuous data.}
 
 \item{groups}{The number of groups.}
+
+\item{method}{The method to give initial clustering.}
 }
 \value{
 A \code{K} x \code{nrow(x)} matrix of 0/1 entries denoting cluster
