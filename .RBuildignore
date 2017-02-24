@@ -6,3 +6,4 @@ roxy.R
 rcpp.R
 .*\.tar\.gz
 .*\.Rcheck/
+MBCbigP
