@@ -19,27 +19,51 @@
 #' cov.wt(mtcars[, 1:5], wt = wts)$cov
 
 var.wt <-
-function (x, y = NULL, w, method = c("unbiased", "ML")){
+function (x, y = NULL, w, method = c("unbiased", "ML"), xcenter = NULL, ycenter
+  = NULL){
 
   ## Check inputs
 
   x <- data.matrix(x)
-  y <- if (is.null(y))
-    x
-  else data.matrix(y)
+
+  if (is.null(y)){
+    y <- x
+    ycenter <- xcenter
+  } else {
+    y <- data.matrix(y)
+  }
+
   n <- nrow(x)
+
   stopifnot(n == nrow(y))
+
   w <- if (missing(w))
     rep(1, n) / n
   else w / sum(w)
 
   ## Calculate the required sums for weighted covariance matrix
 
-  xcenter <- colSums(w * x)
+print(xcenter)
+print(ycenter)
+
+  xcenter <- if (is.null(xcenter))
+    colSums(w * x)
+  else xcenter
+  ycenter <- if (is.null(ycenter))
+    colSums(w * y)
+  else ycenter
+
+print(xcenter)
+print(ycenter)
+
   sqw <- sqrt(w)
   x <- sqw * sweep(x, 2, xcenter)
-  ycenter <- colSums(w * y)
   y <- sqw * sweep(y, 2, ycenter)
+
+print(head(x, 3))
+print(head(y, 3))
+
+print(crossprod(x, y))
 
   ## Return either the unbiased or maximum likelihood (ML) covariance matrix
 

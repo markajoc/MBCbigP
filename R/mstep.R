@@ -37,7 +37,7 @@ function (x, z, groups = NULL, p = NULL)
 }
 
 mstep_cond <-
-function (x1, x2, z, precision2, mu2, sigma2, groups = NULL, p = NULL)
+function (x1, x2, z, mu2, sigma2, groups = NULL, p = NULL)
 {
   ## Sort out inputs.
 
@@ -49,12 +49,6 @@ function (x1, x2, z, precision2, mu2, sigma2, groups = NULL, p = NULL)
   p <- if (is.null(p))
     ncol(x1)
   else p
-  if (missing(precision2)){
-    precision2 <- array(dim = dim(sigma2))
-    for (k in 1:groups){
-      precision2[, , k] <- solve(sigma2[, , k])
-    }
-  }
   mu2 <- if (missing(mu2))
     colMeans.weighted(x2, w = z[, k])
   else mu2

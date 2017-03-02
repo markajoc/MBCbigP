@@ -14,7 +14,7 @@ function (x, parameters)
   x <- data.matrix(x)
   z <- matrix(nrow = nrow(x), ncol = parameters$groups)
   for (k in 1:parameters$groups){
-    z[, k] <- log(parameters$mixing[k]) + mvtnorm::dmvnorm(x = x, mean =
+    z[, k] <- log(parameters$pro[k]) + mvtnorm::dmvnorm(x = x, mean =
       parameters$mean[, k], sigma = as.matrix(parameters$sigma[, , k]), log =
       TRUE)
   }

@@ -18,13 +18,14 @@
 #'   distribution.
 #'
 #' @examples
-#' library(mclust)
-#' data(banknote)
+#' \dontrun{
+#' data(banknote, package = "mclust")
 #' mbcbigp(x = banknote[, -1], groups = 2, batches = 2)
 #' mbcbigp(x = banknote[, -1], groups = 2, batches = 3)
+#' }
 
 mbcbigp <-
-function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 200, plot =
+function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 10, plot =
   FALSE, likelihood = FALSE, verbose = TRUE)
 {
   x <- data.matrix(x)
@@ -64,8 +65,8 @@ function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 200, plot =
 
     ## Maximise
 
-    parameters <- mstep(x[, batchindex[[1L]], drop = FALSE], z, groups, p = length(
-      batchindex[[1L]]))
+    parameters <- mstep(x[, batchindex[[1L]], drop = FALSE], z, groups, p =
+      length(batchindex[[1L]]))
 
     if (plot)
       plotobject <- update(plotobject, parameters)
