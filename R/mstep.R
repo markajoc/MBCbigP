@@ -37,42 +37,30 @@ function (x, z, groups = NULL, p = NULL)
 }
 
 mstep_cond <-
-function (x1, x2, z, mu2, sigma2, groups = NULL, p = NULL)
+function (x_A, x_B, mean_A, sigma_AA, groups, z)
 {
-  ## Sort out inputs.
-
-  x1 <- data.matrix(x1)
-  x2 <- data.matrix(x2)
-  groups <- if (is.null(groups))
-    ncol(z)
-  else groups
-  p <- if (is.null(p))
-    ncol(x1)
-  else p
-  mu2 <- if (missing(mu2))
-    colMeans.weighted(x2, w = z[, k])
-  else mu2
+  x_A <- data.matrix(x_A)
+  x_B <- data.matrix(x_B)
 
   ## Prepare arrays.
 
-  mu1 <- matrix(nrow = p, ncol = groups)
-  sigma1 <- array(dim = c(ncol(x1), ncol(x1), groups))
-  cov12 <- array(dim = c(ncol(x1), ncol(x2), groups))
+  mu_B <- matrix(nrow = ncol(x_B), ncol = groups)
+  sigma_BB <- array(0, dim = c(ncol(x_B), ncol(x_B), groups))
+  sigma_AB <- array(dim = c(ncol(x_A), ncol(x_B), groups))
 
   ## For each group, calculate the covariance between batches, the mean adjusted
   ## for the group probabilities (z), and the covariance matrix for the current
   ## batch (should also be adjusted for z).
 
   for (k in 1:groups){
-    cov12[, , k] <- var.wt(x1, x2, w = z[, k])
-    mu1[, k] <- colMeans.weighted(x1, w = z[, k]) - cov12[, , k] %*% precision2[
-      , , k] %*% colMeans.weighted(sweep(x2, 2, mu2[, k]), w = z[, k])
-    sigma1[, , k] <- var.wt(x1, x1, w = z[, k]) + cov12[, , k] %*% precision2[,
-      , k] %*% t(cov12[, , k])
+    mu_B[, k] <- estimate_mu_B(x_B = x_B, z = z[, k], sigma_AB = sigma_AB[, , k]
+      , sigma_AA[, , k], x_A = x_A, mu_A = mean_A[, k])
+    sigma_AB[, , k] <- estimate_sigma_AB(x_A = x_A, x_B = x_B, mu_A = mean_A[, k],
+      mu_B = mu_B[, k], z = z[, k])
+    sigma_BB[, , k] <- estimate_sigma_BB_cathal2(x_B = x_B, mu_B = mu_B[, k],
+      x_A = x_A, mu_A = mean_A[, k], sigma_AA = sigma_AA[, , k], sigma_AB =
+      sigma_AB[, , k], z = z[, k])
   }
-  rownames(mu1) <- colnames(x1)
-  colnames(mu1) <- 1:groups
-  dimnames(sigma1) <- list(colnames(x1), colnames(x1), 1:groups)
-  structure(list(pro = colMeans(z), mean = mu1, sigma = sigma1, cov = cov12,
-    precision2 = precision2, groups = groups), class = "mbcparameters")
+  structure(list(pro = colMeans(z), mean = mu_B, sigma = sigma_BB, cov =
+    sigma_AB, groups = groups), class = "mbcparameters")
 }

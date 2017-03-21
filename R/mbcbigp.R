@@ -43,8 +43,8 @@ function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 10, plot =
       batches))
   }
   Q <- length(batchindex)
-  if (plot)
-    plotobject <- plotmbc(x, parameters = NULL, groups = groups)
+  #if (plot)
+  #  plotobject <- plotmbc(x, parameters = NULL, groups = groups)
 
   ## Do the first batch using marginal density.
 
@@ -68,15 +68,16 @@ function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 10, plot =
     parameters <- mstep(x[, batchindex[[1L]], drop = FALSE], z, groups, p =
       length(batchindex[[1L]]))
 
-    if (plot)
-      plotobject <- update(plotobject, parameters)
+    #if (plot)
+    #  plotobject <- update(plotobject, parameters)
 
     ## Expectation.
 
-    z <- estep(x[, batchindex[[1L]], drop = FALSE], parameters)
+    z <- estep(x = x[, batchindex[[1L]], drop = FALSE], groups = groups, mean =
+      parameters$mean, sigma = parameters$sigma, pro = parameters$pro)
 
-    #if (plot)
-    #  plot(z[, 1L], ylim = 0:1, main = "q = 1")
+    if (plot)
+      plot(z[, 1L], ylim = 0:1, main = "q = 1")
 
     ## Calculate log-likelihood.
 
@@ -113,24 +114,28 @@ function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 10, plot =
       ## Maximisation.
 
       parameters <- mstep_cond(
-        x1 = x[, batchindex[[q]], drop = FALSE],
-        x2 = x[, batchindex[[q - 1L]], drop = FALSE],
+        x_B = x[, batchindex[[q]], drop = FALSE],
+        x_A = x[, batchindex[[q - 1L]], drop = FALSE],
         z = z,
-        mu2 = parameters_old$mean,
-        sigma2 = parameters_old$sigma,
-        groups = groups,
-        p = NULL)
+        mean_A = parameters_old$mean,
+        sigma_AA = parameters_old$sigma,
+        groups = groups)
 
-      if (plot)
-        plotobject <- update(plotobject, parameters)
+      #if (plot)
+      #  plotobject <- update(plotobject, parameters)
 
       ## Expectation.
 
       z <- estep_cond(
-        x1 = x[, batchindex[[q]], drop = FALSE],
-        x2 = x[, batchindex[[q - 1L]], drop = FALSE],
-        parameters1 = parameters,
-        parameters2 = parameters_old)
+        x_B = x[, batchindex[[q]], drop = FALSE],
+        x_A = x[, batchindex[[q - 1L]], drop = FALSE],
+        pro = parameters$pro,
+        mean_A = parameters_old$mean,
+        mean_B = parameters$mean,
+        sigma_AA = parameters_old$sigma,
+        sigma_AB = parameters$cov,
+        sigma_BB = parameters$sigma,
+        groups = groups)
 
       #if (plot)
       #  plot(z[, 1L], ylim = 0:1, main = paste0("q = ", q))

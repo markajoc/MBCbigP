@@ -10,38 +10,27 @@
 #' @return A single numeric value.
 
 calcloglik <-
-function (x, parameters)
+function (x, pro, mean, sigma, groups)
 {
-  if (is.null(parameters$pro))
-    parameters$pro <- rep(1, parameters$groups)
-  tmp <- matrix(as.double(NA), nrow(x), parameters$groups)
-  for (k in 1:parameters$groups){
-    tmp[, k] <- parameters$pro[k] * mvtnorm::dmvnorm(x, parameters$mean[, k],
-      as.matrix(parameters$sigma[, , k]))
+  tmp <- matrix(as.double(NA), nrow(x), groups)
+  for (k in 1:groups){
+    tmp[, k] <- pro[k] * mvtnorm::dmvnorm(x, mean[, k], as.matrix(sigma[, , k]))
   }
   sum(log(rowSums(tmp)))
 }
 
 #' @rdname calcloglik
 
-calcloglik_cond <-
-function(x, x_cond, parameters, parameters_cond)
+calcloglik_split <-
+function(x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups)
 {
-  if (is.null(parameters_cond$pro))
-    parameters_cond$pro <- rep(1, parameters$groups)
-  tmp <- matrix(as.double(NA), nrow(x), parameters$groups)
-  for (k in 1:parameters$groups){
-    for (i in 1:nrow(x)){
-      tmp[i, k] <- parameters_cond$pro[k] *
-        mvtnorm::dmvnorm(
-          x = x[i, , drop = FALSE],
-          mean = parameters$mean[, k],
-          sigma = as.matrix(parameters$sigma[, , k])) *
-        mvtnorm::dmvnorm(
-          x = x_cond[i, , drop = FALSE],
-          mean = parameters_cond$mean[i, , k, drop = TRUE],
-          sigma = as.matrix(parameters_cond$sigma[, , k]))
-    }
+  x <- cbind(data.matrix(x_A), data.matrix(x_B))
+  mean <- rbind(data.matrix(mean_A), data.matrix(mean_B))
+  tmp <- matrix(as.double(NA), nrow(x), groups)
+  for (k in 1:groups){
+    sigma <- rbind(cbind(sigma_AA[, , k], sigma_AB[, , k]),
+      cbind(t(sigma_AB[, , k]), sigma_BB[, , k]))
+    tmp[, k] <- pro[k] * mvtnorm::dmvnorm(x, mean[, k], as.matrix(sigma))
   }
   sum(log(rowSums(tmp)))
 }
