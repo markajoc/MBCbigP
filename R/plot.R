@@ -14,7 +14,10 @@ function (x, parameters, z, groups = NULL, p = NULL)
     scr2))
   rows <- rep(1:p, each = p)
   cols <- rep(1:p, p)
-  groupcolour <- rep(RColorBrewer::brewer.pal(n = 8, name = "Set1"), length.out
+  groupcolour <- rep(c("dodgerblue2", "red3", "green3", "slateblue",
+    "darkorange", "skyblue1", "violetred4", "forestgreen", "steelblue4",
+    "slategrey", "brown", "black", "darkseagreen", "darkgoldenrod3",
+    "olivedrab", "royalblue", "tomato4", "cyan2", "springgreen2"), length.out
     = groups)
 
   dev.hold()
