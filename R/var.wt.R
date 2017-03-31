@@ -43,8 +43,8 @@ function (x, y = NULL, w, method = c("unbiased", "ML"), xcenter = NULL, ycenter
 
   ## Calculate the required sums for weighted covariance matrix
 
-print(xcenter)
-print(ycenter)
+#print(xcenter)
+#print(ycenter)
 
   xcenter <- if (is.null(xcenter))
     colSums(w * x)
@@ -53,17 +53,17 @@ print(ycenter)
     colSums(w * y)
   else ycenter
 
-print(xcenter)
-print(ycenter)
+#print(xcenter)
+#print(ycenter)
 
   sqw <- sqrt(w)
   x <- sqw * sweep(x, 2, xcenter)
   y <- sqw * sweep(y, 2, ycenter)
 
-print(head(x, 3))
-print(head(y, 3))
+#print(head(x, 3))
+#print(head(y, 3))
 
-print(crossprod(x, y))
+#print(crossprod(x, y))
 
   ## Return either the unbiased or maximum likelihood (ML) covariance matrix
 

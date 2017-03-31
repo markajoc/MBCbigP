@@ -37,30 +37,81 @@ function (x, z, groups = NULL, p = NULL)
 }
 
 mstep_cond <-
-function (x_A, x_B, mean_A, sigma_AA, groups, z)
+function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
+  sigma_BB = NULL, pro = NULL, groups, z, likelihood = FALSE)
 {
   x_A <- data.matrix(x_A)
   x_B <- data.matrix(x_B)
 
   ## Prepare arrays.
 
-  mu_B <- matrix(nrow = ncol(x_B), ncol = groups)
-  sigma_BB <- array(0, dim = c(ncol(x_B), ncol(x_B), groups))
-  sigma_AB <- array(dim = c(ncol(x_A), ncol(x_B), groups))
+  mu_B <- if (is.null(mean_B))
+    matrix(nrow = ncol(x_B), ncol = groups)
+  else mean_B
+  sigma_BB <- if (is.null(sigma_BB))
+    array(dim = c(ncol(x_B), ncol(x_B), groups))
+  else sigma_BB
+  sigma_AB <- if (is.null(sigma_AB))
+    array(0, dim = c(ncol(x_A), ncol(x_B), groups))
+  else sigma_AB
 
   ## For each group, calculate the covariance between batches, the mean adjusted
   ## for the group probabilities (z), and the covariance matrix for the current
   ## batch (should also be adjusted for z).
 
   for (k in 1:groups){
-    mu_B[, k] <- estimate_mu_B(x_B = x_B, z = z[, k], sigma_AB = sigma_AB[, , k]
-      , sigma_AA[, , k], x_A = x_A, mu_A = mean_A[, k])
-    sigma_AB[, , k] <- estimate_sigma_AB(x_A = x_A, x_B = x_B, mu_A = mean_A[, k],
-      mu_B = mu_B[, k], z = z[, k])
-    sigma_BB[, , k] <- estimate_sigma_BB_cathal2(x_B = x_B, mu_B = mu_B[, k],
-      x_A = x_A, mu_A = mean_A[, k], sigma_AA = sigma_AA[, , k], sigma_AB =
-      sigma_AB[, , k], z = z[, k])
+    mu_B[, k] <- estimate_mu_B(
+      x_B = x_B,
+      z = z[, k],
+      sigma_AB = sigma_AB[, , k],
+      sigma_AA[, , k],
+      x_A = x_A,
+      mu_A = mean_A[, k])
+    muBgivenA <- mean_conditional(
+      mu_B = mu_B[, k],
+      mu_A = mean_A[, k],
+      x_A = x_A,
+      sigma_AA = sigma_AA[, , k],
+      sigma_AB = sigma_AB[, , k])
+    sigma_BB[, , k] <- estimate_sigma_BB_cathal(
+      x_B = x_B,
+      mu_BgivenA = muBgivenA,
+      z = z[, k],
+      sigma_AB = sigma_AB[, , k],
+      sigma_AA = sigma_AA[, , k])
+    #sigma_BB[, , k] <- estimate_sigma_BB_cathal2(
+    #  x_B = x_B,
+    #  mu_B = mu_B[, k],
+    #  x_A = x_A,
+    #  mu_A = mean_A[, k],
+    #  sigma_AA = sigma_AA[, , k],
+    #  sigma_AB = sigma_AB[, , k],
+    #  z = z[, k])
   }
+
+  sigma_AB <- estimate_sigma_AB_corr(
+    x_A = x_A,
+    x_B = x_B,
+    mu_A = mean_A,
+    mu_B = mu_B,
+    sigma_AA = sigma_AA,
+    sigma_BB = sigma_BB,
+    sigma_AB = sigma_AB,
+    pro = pro,
+    groups = groups)
+
+  loglik <- if (likelihood){
+    calcloglik_split(
+      x_A = x_A,
+      x_B = x_B,
+      pro = pro,
+      mean_A = mean_A,
+      mean_B = mu_B,
+      sigma_AA = sigma_AA,
+      sigma_AB = sigma_AB,
+      sigma_BB = sigma_BB,
+      groups = groups)
+  } else NULL
   structure(list(pro = colMeans(z), mean = mu_B, sigma = sigma_BB, cov =
-    sigma_AB, groups = groups), class = "mbcparameters")
+    sigma_AB, groups = groups, loglik = loglik), class = "mbcparameters")
 }

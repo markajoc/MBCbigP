@@ -35,13 +35,19 @@ function(x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups)
   sum(log(rowSums(tmp)))
 }
 
-#' @rdname calcloglik
-
-calcloglik_joint <- function(x1, x2, parameters1, parameters2)
+calcloglik_sigma_AB <-
+function (x, dims, ...)
 {
-  x <- cbind(x_A, x_B)
-  mu <- c(mu_A, mu_B)
-  sigma <- rbind(cbind(sigma_AA, sigma_AB), cbind(t(sigma_AB), sigma_BB))
+  sigma_AB <- array(x, dim = dims)
+  calcloglik_split(sigma_AB = sigma_AB, ...)
+}
+
+calcloglik_sigma_BB <-
+function (x, dims, ...)
+{
+  sigma_BB <- array(x, dim = dims)
+  print(sigma_BB)
+  calcloglik_split(sigma_BB = sigma_BB, ...)
 }
 
 #' @rdname calcloglik
