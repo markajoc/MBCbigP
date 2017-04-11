@@ -46,7 +46,7 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
     ## Calculate maximum likelihood estimates for the mixing proportions, means
     ## and covariance matrices
 
-    parameters <- mstep(x, z, groups, p)
+    parameters <- mstep(x = x, z = z, groups = groups, p = p)
 
     if (plot)
       plotobj <- update.mbcplot(plotobj, parameters)
@@ -56,7 +56,8 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
     if (!is.null(loglik))
       loglikprevious <- loglik
     if (likelihood && (times %% 5 == 0)){
-      loglik <- calcloglik(x, parameters)
+      loglik <- calcloglik(x = x, pro = parameters$pro, mean = parameters$mean,
+        sigma = parameters$sigma, groups = parameters$groups)
     }
 
     ## If we have a previous log-likelihood, check that we are not decreasing
@@ -70,7 +71,8 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
 
     ## Calculate expected z values
 
-    z <- estep(x, parameters)
+    z <- estep(x = x, pro = parameters$pro, mean = parameters$mean, sigma =
+      parameters$sigma, groups = parameters$groups)
 
     if (verbose && (times %% 5 == 0))
       cat("\nFinished iteration ", times)
@@ -84,4 +86,40 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
     plotmbc(x = x, parameters = parameters, groups = groups, p = p)
 
   invisible(structure(parameters, class = "mbc"))
+}
+
+mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
+  likelihood = TRUE, verbose = FALSE, plot = FALSE, abstol = 1e-3)
+{
+  loglik <- vector()
+
+  for (times in 1:maxiter){
+
+    if (verbose)
+      cat("Iteration ", times, "\n")
+
+    parameters <- mstep_cond(x_B = x_B, x_A = x_A, z = z, mean_A = mean_A,
+      sigma_AA = sigma_AA, sigma_AB = if (times == 1) NULL else parameters$cov,
+      pro = if (times == 1) pro else parameters$pro, groups = groups)
+
+    if (likelihood){
+      loglik[times] <- calcloglik_split(x_A = x_A, x_B = x_B, pro =
+        parameters$pro, mean_A = mean_A, mean_B = parameters$mean,
+        sigma_AA = sigma_AA, sigma_AB = parameters$cov, sigma_BB =
+        parameters$sigma, groups = groups)
+    }
+
+    z <- estep_cond(x_B = x_B, x_A = x_A, pro = parameters$pro, mean_A = mean_A,
+      mean_B = parameters$mean, sigma_AA = sigma_AA, sigma_AB = parameters$cov,
+      sigma_BB = parameters$sigma, groups = groups)
+
+    if (likelihood & (times > 1)){
+      if (abs(diff(c(loglik[times], loglik[times - 1]))) < abstol){
+        print("no change in loglik")
+        break
+      }
+    }
+  }
+  invisible(structure(list(parameters = parameters, z = z, loglik = loglik),
+    class = c("mbc_cond", "mbc")))
 }

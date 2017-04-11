@@ -27,11 +27,13 @@ function (x, parameters, z, groups = NULL, p = NULL)
     par(mgp = c(3, 0.25, 0.15))
     plot(x[, cols[i]], x[, rows[i]], xlab = "", ylab = "", xaxt = "n", yaxt =
       "n", col = if (identical(rows[i], cols[i])) NULL else "gray", cex = 0.5)
-    cn <- colnames(x)[c(cols[i], rows[i])]
-    if (all(cn %in% rownames(parameters$mean))){
-      for (k in 1:groups){
-        mclust::mvn2plot(mu = parameters$mean[cn, k], sigma = parameters$sigma[
-          cn, cn, k], col = groupcolour[k], lwd = 2)
+    if (!identical(rows[i], cols[i])){
+      cn <- colnames(x)[c(cols[i], rows[i])]
+      if (all(cn %in% rownames(parameters$mean))){
+        for (k in 1:groups){
+          mclust::mvn2plot(mu = parameters$mean[cn, k], sigma =
+            parameters$sigma[cn, cn, k], col = groupcolour[k], lwd = 2)
+        }
       }
     }
     if (identical(rows[i], 1L) & (2 * (round(cols[i] / 2)) == cols[i]))

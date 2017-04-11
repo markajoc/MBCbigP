@@ -79,14 +79,6 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
       z = z[, k],
       sigma_AB = sigma_AB[, , k],
       sigma_AA = sigma_AA[, , k])
-    #sigma_BB[, , k] <- estimate_sigma_BB_cathal2(
-    #  x_B = x_B,
-    #  mu_B = mu_B[, k],
-    #  x_A = x_A,
-    #  mu_A = mean_A[, k],
-    #  sigma_AA = sigma_AA[, , k],
-    #  sigma_AB = sigma_AB[, , k],
-    #  z = z[, k])
   }
 
   sigma_AB <- estimate_sigma_AB_corr(
@@ -99,6 +91,10 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
     sigma_AB = sigma_AB,
     pro = pro,
     groups = groups)
+
+  dimnames(mu_B) <- list(colnames(x_B), 1:groups)
+  dimnames(sigma_BB) <- list(colnames(x_B), colnames(x_B), 1:groups)
+  dimnames(sigma_AB) <- list(colnames(x_A), colnames(x_B), 1:groups)
 
   loglik <- if (likelihood){
     calcloglik_split(
@@ -113,5 +109,5 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
       groups = groups)
   } else NULL
   structure(list(pro = colMeans(z), mean = mu_B, sigma = sigma_BB, cov =
-    sigma_AB, groups = groups, loglik = loglik), class = "mbcparameters")
+    sigma_AB, groups = groups), class = "mbcparameters")
 }

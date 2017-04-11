@@ -33,7 +33,7 @@ estimate_mu_B <-
 function (x_B, z, sigma_AB, sigma_AA, x_A, mu_A)
 {
   out <- colMeans.weighted(x_B, w = z) - t(sigma_AB) %*% solve(sigma_AA) %*%
-  colMeans.weighted(sweep(x_A, 2, mu_A), w = z)
+    colMeans.weighted(sweep(x_A, 2, mu_A), w = z)
   names(out) <- colnames(x_B)
   out
 }

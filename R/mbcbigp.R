@@ -44,8 +44,11 @@ function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 50, plot =
       batches))
   }
   Q <- length(batchindex)
-  #if (plot)
-  #  plotobject <- plotmbc(x, parameters = NULL, groups = groups)
+
+  if (plot){
+    plotobject <- plotmbc(x[, c(batchindex[[1L]], batchindex[[2L]])],
+       parameters = NULL, groups = groups)
+  }
 
   ## Do the first batch using marginal density.
 
@@ -71,16 +74,16 @@ function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 50, plot =
     parameters <- mstep(x[, batchindex[[1L]], drop = FALSE], z, groups, p =
       length(batchindex[[1L]]))
 
-    #if (plot)
-    #  plotobject <- update(plotobject, parameters)
+    if (plot)
+      plotobject <- update(plotobject, parameters)
 
     ## Expectation.
 
     z <- estep(x = x[, batchindex[[1L]], drop = FALSE], groups = groups, mean =
       parameters$mean, sigma = parameters$sigma, pro = parameters$pro)
 
-    if (plot)
-      plot(z[, 1L], ylim = 0:1, main = "q = 1")
+    #if (plot)
+    #  plot(z[, 1L], ylim = 0:1, main = "q = 1")
 
     ## Calculate log-likelihood.
 
@@ -113,7 +116,7 @@ function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 50, plot =
   for (q in 2:Q){
 
     batch[[q]] <- list()
-    batch[[q]]$partrace <- list()
+    batch[[q]]$parameters <- list()
 
     loglik[[q]] <- vector()
 
@@ -128,6 +131,11 @@ function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 50, plot =
 
     for (times in 1:maxiter){
 
+      if (plot & times == 1){
+        plotobject <- plotmbc(x[, c(batchindex[[q-1]], batchindex[[q]])],
+           parameters = NULL, groups = groups)
+      }
+
       if (verbose)
         cat("Batch", q, ", iteration ", times, "\n")
 
@@ -139,9 +147,11 @@ function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 50, plot =
         z = z,
         mean_A = parameters_old$mean,
         sigma_AA = parameters_old$sigma,
-        sigma_AB = parameters$cov,
+        sigma_AB = if (times == 1) NULL else parameters$cov,
         pro = parameters$pro,
         groups = groups)
+
+      batch[[q]]$parameters <- parameters
 
       if (likelihood){
         loglik[[q]][times] <- calcloglik_split(
@@ -156,11 +166,8 @@ function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 50, plot =
           groups = groups)
       }
 
-      #batch[[q]]$partrace[[times]] <- parameters
-
-
-      #if (plot)
-      #  plotobject <- update(plotobject, parameters)
+      if (plot)
+        plotobject <- update(plotobject, parameters)
 
       ## Expectation.
 
@@ -175,8 +182,11 @@ function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 50, plot =
         sigma_BB = parameters$sigma,
         groups = groups)
 
+      batch[[q]]$z <- z
+
       #if (plot)
       #  plot(z[, 1L], ylim = 0:1, main = paste0("q = ", q))
+
       if (likelihood & (times > 1)){
         if (abs(diff(c(loglik[[q]][times], loglik[[q]][times - 1]))) < 1e-3){
           print("no change in loglik")
@@ -184,9 +194,8 @@ function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 50, plot =
         }
       }
     }
-    #batch[[q]] <- parameters
 
   }
   invisible(structure(list(pro = colMeans(z), z = z, batch = batch, loglik =
-    loglik), class = "mbc"))
+    loglik), class = "mbcbigp"))
 }
