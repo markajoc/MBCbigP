@@ -27,7 +27,7 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
   ## Initialise z matrix.
 
   if (verbose)
-    cat("\nInitialising clusters...")
+    cat("\n  Initialising clusters...")
   z <- initialise.memberships(x, groups)
 
   ## Initialise NULL log-likelihoods
@@ -36,10 +36,10 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
   loglik <- NULL
 
   if (verbose)
-    cat("\nStarting E-M iterations...")
+    cat("\n  Starting E-M iterations...")
 
-  if (plot)
-    plotobj <- plotmbc(x = x, parameters = NULL, groups = groups, p = p)
+  #if (plot)
+  #  plotobj <- plotmbc(x = x, parameters = NULL, groups = groups, p = p)
 
   for (times in 1:maxiter){
 
@@ -48,8 +48,8 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
 
     parameters <- mstep(x = x, z = z, groups = groups, p = p)
 
-    if (plot)
-      plotobj <- update.mbcplot(plotobj, parameters)
+    #if (plot)
+    #  plotobj <- update.mbcplot(plotobj, parameters)
 
     ## Calculate log-likelihood.
 
@@ -75,15 +75,15 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
       parameters$sigma, groups = parameters$groups)
 
     if (verbose && (times %% 5 == 0))
-      cat("\nFinished iteration ", times)
+      cat("\n  Iteration ", times)
   }
   if (verbose)
     cat("\n")
   parameters$z <- z
   parameters$loglik <- loglik
 
-  if (plot)
-    plotmbc(x = x, parameters = parameters, groups = groups, p = p)
+  #if (plot)
+  #  plotmbc(x = x, parameters = parameters, groups = groups, p = p)
 
   invisible(structure(parameters, class = "mbc"))
 }
@@ -96,7 +96,7 @@ mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
   for (times in 1:maxiter){
 
     if (verbose)
-      cat("Iteration ", times, "\n")
+      cat("  Iteration ", times)
 
     parameters <- mstep_cond(x_B = x_B, x_A = x_A, z = z, mean_A = mean_A,
       sigma_AA = sigma_AA, sigma_AB = if (times == 1) NULL else parameters$cov,
@@ -107,19 +107,34 @@ mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
         parameters$pro, mean_A = mean_A, mean_B = parameters$mean,
         sigma_AA = sigma_AA, sigma_AB = parameters$cov, sigma_BB =
         parameters$sigma, groups = groups)
+      if (verbose)
+        cat("\tlog-likelihood:", loglik[times])
     }
+
+    if (verbose)
+      cat("\n")
 
     z <- estep_cond(x_B = x_B, x_A = x_A, pro = parameters$pro, mean_A = mean_A,
       mean_B = parameters$mean, sigma_AA = sigma_AA, sigma_AB = parameters$cov,
       sigma_BB = parameters$sigma, groups = groups)
 
+    if (plot){
+      par(mfrow = c(1, groups))
+      for (k in 1:groups){
+        plot(z[, k], ylim = 0:1)
+      }
+    }
+
+
     if (likelihood & (times > 1)){
       if (abs(diff(c(loglik[times], loglik[times - 1]))) < abstol){
-        print("no change in loglik")
+        if (verbose)
+          cat("  Stopping: log-likelihood increase less than", abstol, "\n")
         break
       }
     }
   }
-  invisible(structure(list(parameters = parameters, z = z, loglik = loglik),
+  invisible(structure(list(pro = parameters$pro, mean = parameters$mean,
+    sigma = parameters$sigma, cov = parameters$cov, z = z, loglik = loglik),
     class = c("mbc_cond", "mbc")))
 }

@@ -32,7 +32,7 @@ function (x_B, mu_B, z)
 estimate_mu_B <-
 function (x_B, z, sigma_AB, sigma_AA, x_A, mu_A)
 {
-  out <- colMeans.weighted(x_B, w = z) - t(sigma_AB) %*% solve(sigma_AA) %*%
+  out <- colMeans.weighted(x_B, w = z) + t(sigma_AB) %*% solve(sigma_AA) %*%
     colMeans.weighted(sweep(x_A, 2, mu_A), w = z)
   names(out) <- colnames(x_B)
   out
@@ -74,16 +74,17 @@ function (x_A, x_B, mu_A, mu_B, sigma_AA, sigma_BB, sigma_AB, pro, groups)
       mu_A, mean_B = mu_B, sigma_AA = sigma_AA, sigma_BB = sigma_BB, pro = pro,
       groups = groups)
   }
-  print(f(rho_AB, dim(sigma_AB)))
+  #print(f(rho_AB, dim(sigma_AB)))
   est <- optim(par = rho_AB, fn = f, dims = dim(sigma_AB), x_A = x_A, x_B = x_B,
     mu_A = mu_A, mu_B = mu_B, sigma_AA = sigma_AA, sigma_BB = sigma_BB, pro =
     pro, groups = groups)#, lower = -1, upper = 1)
   rho_AB_new <- array(est$par, dim = dim(sigma_AB))
-  print(est$value)
+  #print(est$value)
   rho_AB_new
   for (k in 1:groups){
     sigma_AB[, , k] <- diag(sqrt(diag(sigma_AA[, , k]))) %*% rho_AB_new[, , k] %*%
       diag(sqrt(diag(sigma_BB[, , k])))
   }
+  dimnames(sigma_AB) <- list(colnames(x_A), colnames(x_B), 1:groups)
   sigma_AB
 }

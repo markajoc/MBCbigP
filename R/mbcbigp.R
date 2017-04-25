@@ -25,8 +25,8 @@
 #' }
 
 mbcbigp <-
-function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 50, plot =
-  FALSE, likelihood = FALSE, verbose = TRUE)
+function (x, groups = 2, batches = 3, batchindex = NULL, batchsize = NULL,
+  maxiter = 50, plot = FALSE, likelihood = FALSE, verbose = TRUE, abstol = 1e-3)
 {
   set.seed(13432523)
   x <- data.matrix(x)
@@ -45,157 +45,41 @@ function (x, groups = 2, batches = 3, batchindex = NULL, maxiter = 50, plot =
   }
   Q <- length(batchindex)
 
-  if (plot){
-    plotobject <- plotmbc(x[, c(batchindex[[1L]], batchindex[[2L]])],
-       parameters = NULL, groups = groups)
-  }
+  #if (plot){
+  #  plotobject <- plotmbc(x[, c(batchindex[[1L]], batchindex[[2L]])],
+  #     parameters = NULL, groups = groups)
+  #}
 
   ## Do the first batch using marginal density.
 
-  ## Initialise membership probabilities
-
-  z <- initialise.memberships(x[, batchindex[[1L]], drop = FALSE], groups)
-
-  ## Initialise NULL log-likelihoods
-
-  loglikprevious <- NULL
-  loglik <- NULL
-
   if (verbose)
-    cat("\n")
-
-  for (times in 1:maxiter){
-
-    if (verbose)
-      cat("Batch 1 , iteration ", times, "\n")
-
-    ## Maximise
-
-    parameters <- mstep(x[, batchindex[[1L]], drop = FALSE], z, groups, p =
-      length(batchindex[[1L]]))
-
-    if (plot)
-      plotobject <- update(plotobject, parameters)
-
-    ## Expectation.
-
-    z <- estep(x = x[, batchindex[[1L]], drop = FALSE], groups = groups, mean =
-      parameters$mean, sigma = parameters$sigma, pro = parameters$pro)
-
-    #if (plot)
-    #  plot(z[, 1L], ylim = 0:1, main = "q = 1")
-
-    ## Calculate log-likelihood.
-
-    if (!is.null(loglik))
-      loglikprevious <- loglik
-    if (likelihood && (times %% 5 == 0)){
-      loglik <- calcloglik(x = x[, batchindex[[1L]]], pro = parameters$pro,
-        mean = parameters$mean, sigma = parameters$sigma, groups = groups)
-    }
-
-    ## If we have a previous log-likelihood, check that we are not decreasing
-    ## the log-likelihood. If we are not increasing it by much, break the loop.
-
-    if (!is.null(loglikprevious)){
-      stopifnot(loglik >= loglikprevious)
-      if (!(loglik > loglikprevious + (abs(loglikprevious) * 1e-5)))
-        break
-    }
-  }
+    cat("\nBatch 1 \n-------------------------------------------")
 
   batch <- list()
-  batch[[1]] <- parameters
-
-  loglik1 <- list()
-  loglik1[[1]] <- loglik
-  loglik <- loglik1
+  batch[[1L]] <- mbc(x = x[, batchindex[[1L]]], groups = groups, maxiter =
+    maxiter, likelihood = likelihood, verbose = verbose, plot = plot)
 
   ## Other batches
 
   for (q in 2:Q){
 
-    batch[[q]] <- list()
-    batch[[q]]$parameters <- list()
-
-    loglik[[q]] <- vector()
-
-    ## Rename parameters from previous batch
-
-    parameters_old <- parameters
-
     if (verbose)
-      cat("\n")
+      cat("\nBatch", q,"\n-------------------------------------------\n")
 
-    ## Start iterations.
+    newz <- initialise.memberships(x[, batchindex[[q]]], groups = groups)
 
-    for (times in 1:maxiter){
-
-      if (plot & times == 1){
-        plotobject <- plotmbc(x[, c(batchindex[[q-1]], batchindex[[q]])],
-           parameters = NULL, groups = groups)
-      }
-
-      if (verbose)
-        cat("Batch", q, ", iteration ", times, "\n")
-
-      ## Maximisation.
-
-      parameters <- mstep_cond(
-        x_B = x[, batchindex[[q]], drop = FALSE],
-        x_A = x[, batchindex[[q - 1L]], drop = FALSE],
-        z = z,
-        mean_A = parameters_old$mean,
-        sigma_AA = parameters_old$sigma,
-        sigma_AB = if (times == 1) NULL else parameters$cov,
-        pro = parameters$pro,
-        groups = groups)
-
-      batch[[q]]$parameters <- parameters
-
-      if (likelihood){
-        loglik[[q]][times] <- calcloglik_split(
-          x_A = x[, batchindex[[q - 1L]], drop = FALSE],
-          x_B = x[, batchindex[[q]], drop = FALSE],
-          pro = parameters$pro,
-          mean_A = parameters_old$mean,
-          mean_B = parameters$mean,
-          sigma_AA = parameters_old$sigma,
-          sigma_AB = parameters$cov,
-          sigma_BB = parameters$sigma,
-          groups = groups)
-      }
-
-      if (plot)
-        plotobject <- update(plotobject, parameters)
-
-      ## Expectation.
-
-      z <- estep_cond(
-        x_B = x[, batchindex[[q]], drop = FALSE],
-        x_A = x[, batchindex[[q - 1L]], drop = FALSE],
-        pro = parameters$pro,
-        mean_A = parameters_old$mean,
-        mean_B = parameters$mean,
-        sigma_AA = parameters_old$sigma,
-        sigma_AB = parameters$cov,
-        sigma_BB = parameters$sigma,
-        groups = groups)
-
-      batch[[q]]$z <- z
-
-      #if (plot)
-      #  plot(z[, 1L], ylim = 0:1, main = paste0("q = ", q))
-
-      if (likelihood & (times > 1)){
-        if (abs(diff(c(loglik[[q]][times], loglik[[q]][times - 1]))) < 1e-3){
-          print("no change in loglik")
-          break
-        }
-      }
-    }
+    batch[[q]] <- mbc_cond(x_A = x[, batchindex[[q - 1L]]],
+      x_B = x[, batchindex[[q]]], mean_A = batch[[q - 1L]]$mean,
+      sigma_AA = batch[[q - 1L]]$sigma, z = newz, pro =
+      batch[[q - 1L]]$pro, groups = groups, maxiter = maxiter, likelihood =
+      likelihood, verbose = verbose, plot = plot, abstol = abstol)
 
   }
-  invisible(structure(list(pro = colMeans(z), z = z, batch = batch, loglik =
-    loglik), class = "mbcbigp"))
+  z <- lapply(batch, function (x) x$z)
+  zave <- Reduce(`+`, z) / length(z)
+  batchindexnames <- if (!is.character(batchindex[[1]]))
+    lapply(batchindex, function (tmp) colnames(x)[tmp])
+  batchindex
+  invisible(structure(list(z = zave, batch = batch, batchindex =
+    batchindexnames), class = "mbcbigp"))
 }
