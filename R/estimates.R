@@ -88,3 +88,19 @@ function (x_A, x_B, mu_A, mu_B, sigma_AA, sigma_BB, sigma_AB, pro, groups)
   dimnames(sigma_AB) <- list(colnames(x_A), colnames(x_B), 1:groups)
   sigma_AB
 }
+
+estimate_sigma_AB_michael <-
+function(x_A, x_B, mu_A, mu_B, sigma_AA, sigma_BB, z)
+{
+  w <- z / sum(z)
+  W_AA <- crossprod(sqrt(w) * sweep(x_A, 2, mu_A))
+  W_AB <- crossprod(sqrt(w) * sweep(x_A, 2, mu_A), sqrt(w) * sweep(x_B, 2,
+    mu_B))
+  #W_AA_inverse <- solve(W_AA)
+  #out <- sigma_AA %*% W_AA_inverse %*% sigma_AA %*% sigma_AA %*% W_AB
+  sigma_AA_inverse <- solve(sigma_AA)
+  out <- solve(sigma_AA_inverse %*% W_AA %*% sigma_AA_inverse) %*% (sigma_AA %*%
+    W_AB)
+  dimnames(out) <- list(colnames(x_A), colnames(x_B))
+  out
+}

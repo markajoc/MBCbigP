@@ -79,6 +79,14 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
       z = z[, k],
       sigma_AB = sigma_AB[, , k],
       sigma_AA = sigma_AA[, , k])
+    #sigma_AB[, , k] <- estimate_sigma_AB_michael(
+    #  x_A = x_A,
+    #  x_B = x_B,
+    #  mu_A = mean_A[, k],
+    #  mu_B = mu_B[, k],
+    #  sigma_AA = sigma_AA[, , k],
+    #  sigma_BB = sigma_BB[, , k],
+    #   z = z[, k])
   }
 
   sigma_AB <- estimate_sigma_AB_corr(

@@ -61,7 +61,7 @@ function (x, groups = 2, batches = 3, batchindex = NULL, batchsize = NULL,
 
   ## Other batches
 
-  for (q in 2:Q){
+  for (q in 2:3){
 
     if (verbose)
       cat("\nBatch", q,"\n-------------------------------------------\n")
