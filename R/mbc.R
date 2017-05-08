@@ -18,7 +18,7 @@
 
 mbc <-
 function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
-  = FALSE)
+  = FALSE, z = NULL)
 {
   x <- data.matrix(x)
   N <- nrow(x)
@@ -26,9 +26,11 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
 
   ## Initialise z matrix.
 
-  if (verbose)
-    cat("\n  Initialising clusters...")
-  z <- initialise.memberships(x, groups)
+  if (is.null(z)){
+    if (verbose)
+      cat("\n  Initialising clusters...")
+    z <- initialise.memberships(x, groups)
+  }
 
   ## Initialise NULL log-likelihoods
 
@@ -89,8 +91,10 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
 }
 
 mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
-  likelihood = TRUE, verbose = FALSE, plot = FALSE, abstol = 1e-3)
+  likelihood = TRUE, verbose = FALSE, plot = FALSE, abstol = 1e-3,
+  method_sigma_AB = c("numeric", "analytic"))
 {
+  method_sigma_AB <- match.arg(method_sigma_AB)
   loglik <- vector()
 
   for (times in 1:maxiter){
@@ -100,7 +104,8 @@ mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
 
     parameters <- mstep_cond(x_B = x_B, x_A = x_A, z = z, mean_A = mean_A,
       sigma_AA = sigma_AA, sigma_AB = if (times == 1) NULL else parameters$cov,
-      pro = if (times == 1) pro else parameters$pro, groups = groups)
+      pro = if (times == 1) pro else parameters$pro, groups = groups,
+      method_sigma_AB = method_sigma_AB)
 
     if (likelihood){
       loglik[times] <- calcloglik_split(x_A = x_A, x_B = x_B, pro =
@@ -124,7 +129,6 @@ mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
         plot(z[, k], ylim = 0:1)
       }
     }
-
 
     if (likelihood & (times > 1)){
       if (abs(diff(c(loglik[times], loglik[times - 1]))) < abstol){

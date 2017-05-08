@@ -26,8 +26,10 @@
 
 mbcbigp <-
 function (x, groups = 2, batches = 3, batchindex = NULL, batchsize = NULL,
-  maxiter = 50, plot = FALSE, likelihood = FALSE, verbose = TRUE, abstol = 1e-3)
+  maxiter = 50, plot = FALSE, likelihood = FALSE, verbose = TRUE, abstol = 1e-3,
+  method_sigma_AB = c("numeric", "analytic"), z = NULL)
 {
+  method_signa_AB <- match.arg(method_sigma_AB)
   set.seed(13432523)
   x <- data.matrix(x)
   N <- nrow(x)
@@ -61,18 +63,17 @@ function (x, groups = 2, batches = 3, batchindex = NULL, batchsize = NULL,
 
   ## Other batches
 
-  for (q in 2:3){
+  for (q in 2:Q){
 
     if (verbose)
       cat("\nBatch", q,"\n-------------------------------------------\n")
 
-    newz <- initialise.memberships(x[, batchindex[[q]]], groups = groups)
-
     batch[[q]] <- mbc_cond(x_A = x[, batchindex[[q - 1L]]],
       x_B = x[, batchindex[[q]]], mean_A = batch[[q - 1L]]$mean,
-      sigma_AA = batch[[q - 1L]]$sigma, z = newz, pro =
+      sigma_AA = batch[[q - 1L]]$sigma, z = batch[[q - 1L]]$z, pro =
       batch[[q - 1L]]$pro, groups = groups, maxiter = maxiter, likelihood =
-      likelihood, verbose = verbose, plot = plot, abstol = abstol)
+      likelihood, verbose = verbose, plot = plot, abstol = abstol,
+      method_sigma_AB = method_sigma_AB)
 
   }
   z <- lapply(batch, function (x) x$z)
@@ -81,5 +82,5 @@ function (x, groups = 2, batches = 3, batchindex = NULL, batchsize = NULL,
     lapply(batchindex, function (tmp) colnames(x)[tmp])
   batchindex
   invisible(structure(list(z = zave, batch = batch, batchindex =
-    batchindexnames), class = "mbcbigp"))
+    batchindexnames, groups = groups), class = "mbcbigp"))
 }

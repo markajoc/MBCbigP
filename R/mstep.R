@@ -38,7 +38,8 @@ function (x, z, groups = NULL, p = NULL)
 
 mstep_cond <-
 function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
-  sigma_BB = NULL, pro = NULL, groups, z, likelihood = FALSE)
+  sigma_BB = NULL, pro = NULL, groups, z, likelihood = FALSE, method_sigma_AB =
+  c("numeric", "analytic"))
 {
   x_A <- data.matrix(x_A)
   x_B <- data.matrix(x_B)
@@ -58,6 +59,11 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
   ## For each group, calculate the covariance between batches, the mean adjusted
   ## for the group probabilities (z), and the covariance matrix for the current
   ## batch (should also be adjusted for z).
+
+  method_sigma_AB <- match.arg(method_sigma_AB)
+  analytic <- if (identical(method_sigma_AB, "analytic"))
+    TRUE
+  else FALSE
 
   for (k in 1:groups){
     mu_B[, k] <- estimate_mu_B(
@@ -79,26 +85,30 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
       z = z[, k],
       sigma_AB = sigma_AB[, , k],
       sigma_AA = sigma_AA[, , k])
-    #sigma_AB[, , k] <- estimate_sigma_AB_michael(
-    #  x_A = x_A,
-    #  x_B = x_B,
-    #  mu_A = mean_A[, k],
-    #  mu_B = mu_B[, k],
-    #  sigma_AA = sigma_AA[, , k],
-    #  sigma_BB = sigma_BB[, , k],
-    #   z = z[, k])
+    if (analytic){
+      sigma_AB[, , k] <- estimate_sigma_AB_michael(
+        x_A = x_A,
+        x_B = x_B,
+        mu_A = mean_A[, k],
+        mu_B = mu_B[, k],
+        sigma_AA = sigma_AA[, , k],
+        sigma_BB = sigma_BB[, , k],
+        z = z[, k])
+    }
   }
 
-  sigma_AB <- estimate_sigma_AB_corr(
-    x_A = x_A,
-    x_B = x_B,
-    mu_A = mean_A,
-    mu_B = mu_B,
-    sigma_AA = sigma_AA,
-    sigma_BB = sigma_BB,
-    sigma_AB = sigma_AB,
-    pro = pro,
-    groups = groups)
+  if (!analytic){
+    sigma_AB <- estimate_sigma_AB_corr(
+      x_A = x_A,
+      x_B = x_B,
+      mu_A = mean_A,
+      mu_B = mu_B,
+      sigma_AA = sigma_AA,
+      sigma_BB = sigma_BB,
+      sigma_AB = sigma_AB,
+      pro = pro,
+      groups = groups)
+  }
 
   dimnames(mu_B) <- list(colnames(x_B), 1:groups)
   dimnames(sigma_BB) <- list(colnames(x_B), colnames(x_B), 1:groups)
