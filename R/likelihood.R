@@ -52,8 +52,8 @@ function (x, dims, ...)
 
 #' @rdname calcloglik
 
-logLik.mbc <-
+logLik.mbcbigp <-
 function (object, ...)
 {
-  calcloglik(object)
+  lapply(object$batch, "[[", "loglik")
 }
