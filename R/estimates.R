@@ -34,6 +34,10 @@ function (x_B, z, sigma_AB, sigma_AA, x_A, mu_A)
 {
   out <- colMeans.weighted(x_B, w = z) - t(sigma_AB) %*% solve(sigma_AA) %*%
     colMeans.weighted(sweep(x_A, 2, mu_A), w = z)
+  if (any(is.na(out))){
+    stop("conditional mean estimate contains NA/NaN")
+    #browser()
+  }
   names(out) <- colnames(x_B)
   out
 }
@@ -100,12 +104,17 @@ function(x_A, x_B, mu_A, mu_B, sigma_AA, sigma_BB, z)
   W_AA_inverse <- solve(W_AA)
   out <- sigma_AA %*% W_AA_inverse %*% W_AB
 
-  if (any(is.na(out)))
-    error("between-batch covariance estimate contains NA/NaN")
+  if (any(is.na(out))){
+    stop("between-batch covariance estimate contains NA/NaN")
+    #browser()
+  }
+  rho_AB <- out * NA
+  rho_AB <- diag(1 / sqrt(diag(sigma_AA))) %*% out %*% diag(1 / sqrt(diag(
+    sigma_BB)))
 
-  #rho_AB <- out * NA
-  #rho_AB <- diag(1 / sqrt(diag(sigma_AA))) %*% out %*% diag(1 / sqrt(diag(
-  #  sigma_BB)))
+  if (any(!inrange(rho_AB, c(-1, 1))))
+    stop("between-batch covariance implies invalid correlation outside [-1, 1]")
+
   #print(range(round(rho_AB, 3)))
 
   #sigma_AA_inverse <- solve(sigma_AA)
