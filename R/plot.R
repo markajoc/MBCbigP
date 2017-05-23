@@ -1,6 +1,7 @@
 plotmbc <-
 function (x, parameters, z, groups = NULL, p = NULL)
 {
+  dev.flush()
   p <- if (is.null(p))
     ncol(x)
   else p
@@ -69,19 +70,45 @@ function (object, parameters)
   for (i in seq_along(object$scr2)){
     cn <- colnames(object$x)[c(object$cols[i], object$rows[i])]
     if (all(cn %in% rownames(parameters$mean))){
-      screen(object$scr2[i])
-      par(mar = object$mar.matrix[i, ])
-      par(usr = object$usr.matrix[i, ])
-      par(fig = object$fig.matrix[i, ])
-      rect(object$usr.matrix[i, 1], object$usr.matrix[i, 3], object$usr.matrix[
-        i, 2], object$usr.matrix[i, 4], col = "white")
-      points(object$x[, cn, drop = FALSE], col = "gray", cex = 0.5)
-      for (k in 1:object$groups){
-        mclust::mvn2plot(mu = parameters$mean[cn, k], sigma = parameters$sigma[
-          cn, cn, k], col = object$groupcolour[k], lwd = 2)
+      if (!identical(cn[1L], cn[2L])){
+        screen(object$scr2[i])
+        par(mar = object$mar.matrix[i, ])
+        par(usr = object$usr.matrix[i, ])
+        par(fig = object$fig.matrix[i, ])
+        rect(object$usr.matrix[i, 1], object$usr.matrix[i, 3], object$usr.matrix[
+          i, 2], object$usr.matrix[i, 4], col = "white")
+        points(object$x[, cn, drop = FALSE], col = "gray", cex = 0.5)
+        for (k in 1:object$groups){
+          mclust::mvn2plot(mu = parameters$mean[cn, k], sigma = parameters$sigma[
+            cn, cn, k], col = object$groupcolour[k], lwd = 2)
+        }
       }
     }
   }
   dev.flush()
   invisible(object)
+}
+
+plotmbcbigp <-
+function (x_A, x_B, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, z,
+  groups = NULL, p = NULL)
+{
+  x <- cbind(x_A, x_B)
+  parameters <- list()
+  parameters$mean <- reform_mean(mean_A = mean_A, mean_B = mean_B, groups =
+    groups)
+  parameters$sigma <- reform_sigma(sigma_AA = sigma_AA, sigma_AB = sigma_AB,
+    sigma_BB = sigma_BB, groups = groups)
+  plotmbc(x = x, parameters = parameters, z = z, groups = groups, p = p)
+}
+
+update.mbcbigpplot <-
+function (object, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, z, groups)
+{
+  parameters <- list()
+  parameters$mean <- reform_mean(mean_A = mean_A, mean_B = mean_B, groups =
+    groups)
+  parameters$sigma <- reform_sigma(sigma_AA = sigma_AA, sigma_AB = sigma_AB,
+    sigma_BB = sigma_BB, groups = groups)
+  update.mbcplot(object, parameters)
 }
