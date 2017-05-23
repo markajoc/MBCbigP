@@ -21,7 +21,8 @@ function (z, ya, mua, yb, mub)
   tmp / sum(z)
 }
 
-reform_sigma <- function (sigma_AA, sigma_AB, sigma_BB, groups){
+reform_sigma <-
+function (sigma_AA, sigma_AB, sigma_BB, groups){
   sigma <- array(dim = c(rep(dim(sigma_AA)[1] + dim(sigma_BB)[1], 2), groups))
   for (k in 1:groups){
     sigma[, , k] <- rbind(cbind(sigma_AA[, , k], sigma_AB[, , k]), cbind(t(
@@ -32,11 +33,18 @@ reform_sigma <- function (sigma_AA, sigma_AB, sigma_BB, groups){
   sigma
 }
 
-reform_mean <- function (mean_A, mean_B, groups){
+reform_mean <-
+function (mean_A, mean_B, groups){
   mean <- array(dim = c(dim(mean_A)[1] + dim(mean_B)[1], groups))
   for (k in 1:groups){
     mean[, k] <- c(mean_A[, k], mean_B[, k])
   }
   rownames(mean) <- c(rownames(mean_A), rownames(mean_B))
   mean
+}
+
+inrange <-
+function (x, range)
+{
+  sapply(findInterval(x, range(range), rightmost.closed = TRUE), identical, 1L)
 }
