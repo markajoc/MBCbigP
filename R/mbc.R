@@ -40,8 +40,8 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
   if (verbose)
     cat("\n  Starting E-M iterations...")
 
-  #if (plot)
-  #  plotobj <- plotmbc(x = x, parameters = NULL, groups = groups, p = p)
+  if (plot)
+    plotobj <- plotmbc(x = x, parameters = NULL, groups = groups, p = p)
 
   for (times in 1:maxiter){
 
@@ -50,8 +50,8 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
 
     parameters <- mstep(x = x, z = z, groups = groups, p = p)
 
-    #if (plot)
-    #  plotobj <- update.mbcplot(plotobj, parameters)
+    if (plot)
+      plotobj <- update.mbcplot(plotobj, parameters)
 
     ## Calculate log-likelihood.
 
@@ -124,10 +124,20 @@ mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
       sigma_BB = parameters$sigma, groups = groups)
 
     if (plot){
-      par(mfrow = c(1, groups))
-      for (k in 1:groups){
-        plot(z[, k], ylim = 0:1)
+
+      if (times == 1){
+        plotobj <- plotmbcbigp(x_A = x_A, x_B = x_B, mean_A = mean_A, mean_B =
+          parameters$mean, sigma_AA = sigma_AA, sigma_AB = parameters$cov,
+          sigma_BB = parameters$sigma, z = z, groups = groups, p = NULL)
+      } else {
+        update.mbcbigpplot(plotobj, mean_A = mean_A, mean_B = parameters$mean,
+          sigma_AA = sigma_AA, sigma_AB = parameters$cov, sigma_BB
+          = parameters$sigma, z = z, groups = groups)
       }
+      #par(mfrow = c(1, groups))
+      #for (k in 1:groups){
+      #  plot(z[, k], ylim = 0:1)
+      #}
     }
 
     if (likelihood & (times > 1)){
