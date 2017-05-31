@@ -2,24 +2,25 @@
 % Please edit documentation in R/likelihood.R
 \name{calcloglik}
 \alias{calcloglik}
-\alias{calcloglik_cond}
-\alias{logLik.mbc}
+\alias{calcloglik_split}
+\alias{logLik.mbcbigp}
 \title{Calculate log-likelihood for a Gaussian mixture model.}
 \usage{
-calcloglik(x, parameters)
+calcloglik(x, pro, mean, sigma, groups)
 
-calcloglik_cond(x1, x2, parameters1, parameters2)
+calcloglik_split(x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB,
+  groups)
 
-\method{logLik}{mbc}(object, ...)
+\method{logLik}{mbcbigp}(object, ...)
 }
 \arguments{
 \item{x}{A data frame or matrix of data.}
 
-\item{parameters}{A list of parameters for the model.}
-
 \item{object}{A fitted model object of class \code{"mbc"}.}
 
 \item{...}{not currently used.}
+
+\item{parameters}{A list of parameters for the model.}
 }
 \value{
 A single numeric value.

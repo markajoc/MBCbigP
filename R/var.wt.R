@@ -7,7 +7,8 @@
 #' @param x Data frame or a matrix
 #' @param y Data frame or a matrix with the same number of rows as \code{x}. If
 #'   left \code{NULL}, the covariance matrix of \code{x} is calculated.
-#' @param w A set of weights.
+#' @param w A vector of weights. \code{w} will be divided by \code{sum(w)} to
+#'   ensure weights sum to 1.
 #' @param method The type of estimate returned, \code{"unbiased"} (default) or
 #'   \code{"ML"}, meaning maximum likelihood.
 #'
@@ -43,9 +44,6 @@ function (x, y = NULL, w, method = c("unbiased", "ML"), xcenter = NULL, ycenter
 
   ## Calculate the required sums for weighted covariance matrix
 
-#print(xcenter)
-#print(ycenter)
-
   xcenter <- if (is.null(xcenter))
     colSums(w * x)
   else xcenter
@@ -53,17 +51,9 @@ function (x, y = NULL, w, method = c("unbiased", "ML"), xcenter = NULL, ycenter
     colSums(w * y)
   else ycenter
 
-#print(xcenter)
-#print(ycenter)
-
   sqw <- sqrt(w)
   x <- sqw * sweep(x, 2, xcenter)
   y <- sqw * sweep(y, 2, ycenter)
-
-#print(head(x, 3))
-#print(head(y, 3))
-
-#print(crossprod(x, y))
 
   ## Return either the unbiased or maximum likelihood (ML) covariance matrix
 

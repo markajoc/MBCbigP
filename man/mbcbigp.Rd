@@ -4,8 +4,10 @@
 \alias{mbcbigp}
 \title{Fit a mixture of multivariate Gaussians using sequential conditioning}
 \usage{
-mbcbigp(x, groups = 2, batches = 3, batchindex = NULL, maxiter = 10,
-  plot = FALSE, likelihood = FALSE, verbose = TRUE)
+mbcbigp(x, groups = 2, batches = 3, batchindex = NULL, batchsize = NULL,
+  maxiter = 50, plot = FALSE, likelihood = TRUE, verbose = TRUE,
+  abstol = 1e-06, method_sigma_AB = c("analytic", "numeric"), z = NULL,
+  scorefun = bestseparated, updateA = FALSE)
 }
 \arguments{
 \item{x}{Data frame or a matrix}
@@ -17,6 +19,11 @@ processing. A single number gives the desired number of batches, whereas a
 vector of length \code{ncol(x)} is treated as an integer index of batch
 membership.}
 
+\item{batchindex}{A list of column names or integer indices for the batches
+of \code{x}.}
+
+\item{batchsize}{The desired number of columns in each batch.}
+
 \item{maxiter}{The maximum number of iterations for the E-M algorithm.}
 
 \item{plot}{Logical, should a visualisation be produced to show progress.}
@@ -25,6 +32,23 @@ membership.}
 stopping criterion.}
 
 \item{verbose}{Logical, should statements about progress be printed.}
+
+\item{abstol}{Numeric, tolerance for log-likelihood stopping rule. Defaults
+to 1e-6.}
+
+\item{method_sigma_AB}{One of \code{"analytic"} (default) or
+\code{"numeric"}, to choose the method of estimating the between-batch
+covariance for a cluster.}
+
+\item{z}{Initial cluster membership probabilities. Numeric matrix.}
+
+\item{scorefun}{A function to score the clustering of the data at each batch,
+defaults to \code{bestseparated}.}
+
+\item{updateA}{If \code{FALSE} (default), at each batch the parameters for
+the current batch are maximised conditionally on the parameters from the
+previous batch. If \code{TRUE}, this is followed by also maximising the
+parameters from the previous batch conditionally on the current batch.}
 }
 \value{
 A list containing the estimated parameters for the mixture

@@ -48,3 +48,28 @@ function (x, range)
 {
   sapply(findInterval(x, range(range), rightmost.closed = TRUE), identical, 1L)
 }
+
+weightedmean.list <-
+function(x, w, ...)
+{
+  if (!identical(length(x), length(w)))
+    warning("lengths of x and w do not match")
+  w <- unlist(w)
+  w <- rep(w, length.out = length(x))
+  if (any(w < 0))
+    stop("negative weights in w")
+  w <- w / sum(w)
+  out <- x[[1L]] * 0
+  for (i in seq_along(x)){
+    out <- out + w[i] * x[[i]]
+  }
+  out
+}
+
+randIndex.mbcbigp <-
+function(object, true, ...)
+{
+  clustering <- lapply(object$batch, function(obj) mclust::map(obj$z))
+  unname(unlist(lapply(clustering, function(obj) flexclust::randIndex(obj, true)
+    )))
+}

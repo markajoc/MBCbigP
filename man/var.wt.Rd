@@ -13,7 +13,8 @@ var.wt(x, y = NULL, w, method = c("unbiased", "ML"), xcenter = NULL,
 \item{y}{Data frame or a matrix with the same number of rows as \code{x}. If
 left \code{NULL}, the covariance matrix of \code{x} is calculated.}
 
-\item{w}{A set of weights.}
+\item{w}{A vector of weights. \code{w} will be divided by \code{sum(w)} to
+ensure weights sum to 1.}
 
 \item{method}{The type of estimate returned, \code{"unbiased"} (default) or
 \code{"ML"}, meaning maximum likelihood.}

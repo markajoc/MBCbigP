@@ -17,6 +17,7 @@
 initialise.memberships <-
 function (x, groups, method = c("kmeans", "hclust"))
 {
+  x <- x[, apply(x, 2, function(obj) !any(is.na(obj))), drop = FALSE]
   cl <- stats::kmeans(x, groups)
   z <- model.matrix(~ as.factor(cl$cluster) - 1)
   colnames(z) <- 1:groups

@@ -5,7 +5,7 @@
 \title{Fit a mixture of multivariate Gaussians}
 \usage{
 mbc(x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE,
-  plot = FALSE)
+  plot = FALSE, z = NULL)
 }
 \arguments{
 \item{x}{Data frame or a matrix}

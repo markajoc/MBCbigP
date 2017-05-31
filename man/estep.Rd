@@ -4,7 +4,7 @@
 \alias{estep}
 \title{Expectation step for Expectation-Maximisation algorithm}
 \usage{
-estep(x, parameters)
+estep(x, pro, mean, sigma, groups)
 }
 \arguments{
 \item{x}{A matrix of data.}

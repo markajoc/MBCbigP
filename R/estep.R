@@ -40,3 +40,29 @@ function (x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups)
   }
   z / rowSums(z)
 }
+
+estep_cond2 <-
+function (x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups,
+  oldz = NULL)
+{
+  oldz <- if (is.null(oldz))
+    matrix(1, nrow = nrow(x_A), ncol = groups)
+  else oldz
+
+  x <- cbind(data.matrix(x_A), data.matrix(x_B))
+  mean <- rbind(data.matrix(mean_A), data.matrix(mean_B))
+  z <- matrix(nrow = nrow(x), ncol = groups)
+  for (k in 1:groups){
+    sigma <- rbind(cbind(sigma_AA[, , k], sigma_AB[, , k]),
+      cbind(t(sigma_AB[, , k]), sigma_BB[, , k]))
+    z[, k] <- log(pro[k]) + mvtnorm::dmvnorm(x = x, mean = mean[, k], sigma =
+    as.matrix(sigma), log = TRUE)
+  }
+  z <- exp(z)
+  if (any(apply(z, 2L, function(x) all(x == 0)))){
+    #print(head(z, 10))
+    stop("assigned all observations to zero in column of cluster memberships")
+  }
+  #z <- z * (oldz)
+  structure(z / rowSums(z), unscaled = z)
+}

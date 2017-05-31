@@ -29,3 +29,19 @@ function (sigma_BB, sigma_AB, sigma_AA)
 {
   sigma_BB - t(sigma_AB) %*% solve(sigma_AA) %*% sigma_AB
 }
+
+#' @rdname mean_conditional
+
+dmvnorm_conditional <-
+function(x_A, x_B, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB)
+{
+  #mu <- mean_conditional(mu_B = mean_B, mu_A = mean_A, x_A = x_A, sigma_AA =
+  #  sigma_AA, sigma_AB = sigma_AB)
+  #sigma <- sigma_conditional()
+  x <- cbind(x_A, x_B)
+  mu <- c(mean_A, mean_B)
+  sigma <- rbind(cbind(sigma_AA, sigma_AB), cbind(t(sigma_AB), sigma_BB))
+  joint <- mvtnorm::dmvnorm(x = x, mean = mu, sigma = sigma)
+  marginal <- mvtnorm::dmvnorm(x = x_A, mean = mean_A, sigma = sigma_AA)
+  joint / marginal
+}

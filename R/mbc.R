@@ -41,7 +41,7 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
     cat("\n  Starting E-M iterations...")
 
   if (plot)
-    plotobj <- plotmbc(x = x, parameters = NULL, groups = groups, p = p)
+    plotobj <- plotmbc(x = x, parameters = NULL, z = z, groups = groups, p = p)
 
   for (times in 1:maxiter){
 
@@ -51,7 +51,7 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
     parameters <- mstep(x = x, z = z, groups = groups, p = p)
 
     if (plot)
-      plotobj <- update.mbcplot(plotobj, parameters)
+      plotobj <- update.mbcplot(plotobj, parameters, z)
 
     ## Calculate log-likelihood.
 
@@ -92,7 +92,7 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
 
 mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
   likelihood = TRUE, verbose = FALSE, plot = FALSE, abstol = 1e-3,
-  method_sigma_AB = c("numeric", "analytic"))
+  method_sigma_AB = c("numeric", "analytic"), updateA = FALSE)
 {
   method_sigma_AB <- match.arg(method_sigma_AB)
   loglik <- vector()
@@ -107,6 +107,11 @@ mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
       pro = if (times == 1) pro else parameters$pro, groups = groups,
       method_sigma_AB = method_sigma_AB)
 
+    if (updateA){
+      mean_A <- parameters$meanprev
+      sigma_AA <- parameters$sigmaprev
+    }
+
     if (likelihood){
       loglik[times] <- calcloglik_split(x_A = x_A, x_B = x_B, pro =
         parameters$pro, mean_A = mean_A, mean_B = parameters$mean,
@@ -114,14 +119,24 @@ mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
         parameters$sigma, groups = groups)
       if (verbose)
         cat("\tlog-likelihood:", loglik[times])
+      if (likelihood && (times > 1L)){
+        if ((loglik[times] - loglik[times - 1L]) < 0){
+          #cat("\n")
+          #stop("log-likelihood decreasing")
+        }
+      }
     }
 
     if (verbose)
       cat("\n")
 
-    z <- estep_cond(x_B = x_B, x_A = x_A, pro = parameters$pro, mean_A = mean_A,
+    #z <- estep_cond(x_B = x_B, x_A = x_A, pro = parameters$pro, mean_A = mean_A,
+    #  mean_B = parameters$mean, sigma_AA = sigma_AA, sigma_AB = parameters$cov,
+    #  sigma_BB = parameters$sigma, groups = groups)
+
+    z <- estep_cond2(x_B = x_B, x_A = x_A, pro = parameters$pro, mean_A = mean_A,
       mean_B = parameters$mean, sigma_AA = sigma_AA, sigma_AB = parameters$cov,
-      sigma_BB = parameters$sigma, groups = groups)
+      sigma_BB = parameters$sigma, groups = groups, oldz = attr(z, "unscaled"))
 
     if (plot){
 

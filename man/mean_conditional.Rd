@@ -3,35 +3,34 @@
 \name{mean_conditional}
 \alias{mean_conditional}
 \alias{sigma_conditional}
+\alias{dmvnorm_conditional}
 \title{Calculate conditional mean and covariance for multivariate Gaussian
   distributions.}
 \usage{
-mean_conditional(mean, cov, precision_cond, x_cond, mean_cond, sigma_cond)
+mean_conditional(mu_B, mu_A, x_A, sigma_AA, sigma_AB)
 
-sigma_conditional(sigma, cov, precision_cond, sigma_cond)
+sigma_conditional(sigma_BB, sigma_AB, sigma_AA)
+
+dmvnorm_conditional(x_A, x_B, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB)
 }
 \arguments{
-\item{mean}{The mean vector for A.}
+\item{mu_B}{The mean vector for B.}
 
-\item{cov}{The covariance between A and B.}
+\item{mu_A}{The mean vector for A.}
 
-\item{precision_cond}{The precision matrix for B.}
+\item{x_A}{The points in A at which to evaluate the conditional mean of B.}
 
-\item{x_cond}{The value of B on which to condition (only needed for the
-mean).}
+\item{sigma_AA}{The covariance matrix for A.}
 
-\item{mean_cond}{The mean vector for B.}
-
-\item{sigma_cond}{The covariance matrix for B, optional alternative to
-\code{precision_cond}.}
+\item{sigma_AB}{The cross-covariance matrix for A and B.}
 }
 \value{
-The relevant parameter for the distribution of A given B.
+The relevant mean parameter for the distribution of B given A.
 }
 \description{
 Calculate conditional mean and covariance for multivariate
   Gaussian distributions. Consider partitioning into A and B. This function
-  returns parameters for the distribution of A given B, which is itself
+  returns parameters for the distribution of B given A, which is itself
   another Gaussian distribution.
 }
 
