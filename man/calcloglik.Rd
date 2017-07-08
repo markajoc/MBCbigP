@@ -11,7 +11,7 @@ calcloglik(x, pro, mean, sigma, groups)
 calcloglik_split(x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB,
   groups)
 
-\method{logLik}{mbcbigp}(object, ...)
+logLik.mbcbigp(object, ...)
 }
 \arguments{
 \item{x}{A data frame or matrix of data.}

@@ -2,10 +2,15 @@
 % Please edit documentation in R/mbc.R
 \name{mbc}
 \alias{mbc}
+\alias{mbc_cond}
 \title{Fit a mixture of multivariate Gaussians}
 \usage{
 mbc(x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE,
   plot = FALSE, z = NULL)
+
+mbc_cond(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
+  likelihood = TRUE, verbose = FALSE, plot = FALSE, abstol = 0.001,
+  method_sigma_AB = c("numeric", "analytic"), updateA = FALSE)
 }
 \arguments{
 \item{x}{Data frame or a matrix}

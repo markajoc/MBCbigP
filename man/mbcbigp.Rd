@@ -4,10 +4,10 @@
 \alias{mbcbigp}
 \title{Fit a mixture of multivariate Gaussians using sequential conditioning}
 \usage{
-mbcbigp(x, groups = 2, batches = 3, batchindex = NULL, batchsize = NULL,
-  maxiter = 50, plot = FALSE, likelihood = TRUE, verbose = TRUE,
-  abstol = 1e-06, method_sigma_AB = c("analytic", "numeric"), z = NULL,
-  scorefun = bestseparated, updateA = FALSE)
+mbcbigp(x, groups = 2, batches = NULL, batchindex = NULL,
+  batchsize = NULL, maxiter = 50, plot = FALSE, likelihood = TRUE,
+  verbose = TRUE, abstol = 1e-06, method_sigma_AB = c("analytic",
+  "numeric"), z = NULL, scorefun = bestseparated, updateA = FALSE)
 }
 \arguments{
 \item{x}{Data frame or a matrix}
