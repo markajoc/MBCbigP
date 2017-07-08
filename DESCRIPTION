@@ -10,7 +10,7 @@ Authors@R: c(
 Maintainer: Mark O'Connell <moconnell@ucd.ie>
 Description: Model-based clustering for high-dimensional data.
 License: GPL (>= 2)
-Imports: Rcpp (>= 0.12.7), mclust (>= 5.0), mvtnorm, stats
+Imports: Rcpp (>= 0.12.7), mclust (>= 5.0), mvtnorm, stats, flexclust
 Suggests: testthat, RColorBrewer
 LinkingTo: Rcpp
 RoxygenNote: 5.0.1.9000

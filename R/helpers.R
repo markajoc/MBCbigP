@@ -1,3 +1,9 @@
+## This is a set of helper functions for various tasks throughout the rest of
+## the package.
+
+## Function to break a vector into a list of vectors, either by the desired
+## length of the list, or the desired length of each vector in that list.
+
 chunk <-
 function (x, chunks, each)
 {
@@ -72,4 +78,21 @@ function(object, true, ...)
   clustering <- lapply(object$batch, function(obj) mclust::map(obj$z))
   unname(unlist(lapply(clustering, function(obj) flexclust::randIndex(obj, true)
     )))
+}
+
+createbatchindex <-
+function (p, batches = NULL, batchsize = NULL)
+{
+  if (is.null(batches)){
+    batchsize <- if (is.null(batchsize))
+      min(ceiling(p / 2), 25)
+    else batchsize
+    batches <- ceiling(p / batchsize)
+  } else {
+    batchsize <- ceiling(p / batches)
+  }
+  batches <- rep(1:batches, each = batchsize)[1:p]
+  batchindex <- lapply(as.list(unique(batches)), function (o) which(o ==
+    batches))
+  batchindex
 }

@@ -90,6 +90,8 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
   invisible(structure(parameters, class = "mbc"))
 }
 
+#'@rdname mbc
+
 mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
   likelihood = TRUE, verbose = FALSE, plot = FALSE, abstol = 1e-3,
   method_sigma_AB = c("numeric", "analytic"), updateA = FALSE)
@@ -134,9 +136,9 @@ mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
     #  mean_B = parameters$mean, sigma_AA = sigma_AA, sigma_AB = parameters$cov,
     #  sigma_BB = parameters$sigma, groups = groups)
 
-    z <- estep_cond2(x_B = x_B, x_A = x_A, pro = parameters$pro, mean_A = mean_A,
+    z <- estep_cond(x_B = x_B, x_A = x_A, pro = parameters$pro, mean_A = mean_A,
       mean_B = parameters$mean, sigma_AA = sigma_AA, sigma_AB = parameters$cov,
-      sigma_BB = parameters$sigma, groups = groups, oldz = attr(z, "unscaled"))
+      sigma_BB = parameters$sigma, groups = groups)#, oldz = attr(z, "unscaled"))
 
     if (plot){
 
@@ -156,7 +158,9 @@ mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
     }
 
     if (likelihood & (times > 1)){
-      if (abs(diff(c(loglik[times], loglik[times - 1]))) < abstol){
+      #if ((loglik[times] - loglik[times - 1L]) < -abstol)
+      #  stop("log-likelihood decreasing")
+      if (abs(diff(c(loglik[times], loglik[times - 1L]))) < abstol){
         if (verbose)
           cat("  Stopping: log-likelihood increase less than", abstol, "\n")
         break

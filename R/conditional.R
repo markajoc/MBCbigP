@@ -33,7 +33,7 @@ function (sigma_BB, sigma_AB, sigma_AA)
 #' @rdname mean_conditional
 
 dmvnorm_conditional <-
-function(x_A, x_B, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB)
+function(x_A, x_B, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, log = TRUE)
 {
   #mu <- mean_conditional(mu_B = mean_B, mu_A = mean_A, x_A = x_A, sigma_AA =
   #  sigma_AA, sigma_AB = sigma_AB)
@@ -41,7 +41,10 @@ function(x_A, x_B, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB)
   x <- cbind(x_A, x_B)
   mu <- c(mean_A, mean_B)
   sigma <- rbind(cbind(sigma_AA, sigma_AB), cbind(t(sigma_AB), sigma_BB))
-  joint <- mvtnorm::dmvnorm(x = x, mean = mu, sigma = sigma)
-  marginal <- mvtnorm::dmvnorm(x = x_A, mean = mean_A, sigma = sigma_AA)
-  joint / marginal
+  joint <- mvtnorm::dmvnorm(x = x, mean = mu, sigma = sigma, log = TRUE)
+  marginal <- mvtnorm::dmvnorm(x = x_A, mean = mean_A, sigma = sigma_AA, log =
+    TRUE)
+  if (log)
+    joint - marginal
+  else exp(joint - marginal)  
 }

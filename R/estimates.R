@@ -20,11 +20,18 @@ function (x_B, mu_B, x_A, mu_A, sigma_AA, sigma_AB, z)
   out
 }
 
-estimate_sigma_BB_mark <-
-function (x_B, mu_B, z)
+estimate_sigma_BB_michael <-
+function (x_B, mu_B, x_A, mu_A, sigma_AA, sigma_AB, z)
 {
   w <- z / sum(z)
-  out <- crossprod(sqrt(w) * sweep(x_B, 2, mu_B))
+  wsq <- sqrt(w)
+  sigma_AA_inverse <- solve(sigma_AA)
+  W_AA <- crossprod(wsq * sweep(x_A, 2, mu_A))
+  W_BB <- crossprod(wsq * sweep(x_B, 2, mu_B))
+  W_AB <- crossprod(wsq * sweep(x_A, 2, mu_B), wsq * sweep(x_B, 2, mu_B))
+  prec_BB <- (t(sigma_AB) %*% sigma_AA_inverse %*% W_AA %*% sigma_AA_inverse %*%
+  sigma_AB - 2 * t(W_AB) %*% sigma_AA_inverse %*% sigma_AB + W_BB) 
+  out <- prec_BB + t(sigma_AB) %*% sigma_AA_inverse %*% sigma_AB
   rownames(out) <- colnames(out) <- colnames(x_B)
   out
 }
@@ -84,6 +91,9 @@ function (x_A, x_B, mu_A, mu_B, sigma_AA, sigma_BB, sigma_AB, pro, groups)
     mu_A = mu_A, mu_B = mu_B, sigma_AA = sigma_AA, sigma_BB = sigma_BB, pro =
     pro, groups = groups)#, lower = -1, upper = 1)
   rho_AB_new <- array(est$par, dim = dim(sigma_AB))
+
+print(rho_AB_new)
+
   #print(est$value)
   rho_AB_new
   for (k in 1:groups){
@@ -114,12 +124,15 @@ function(x_A, x_B, mu_A, mu_B, sigma_AA, sigma_BB, z)
   rho_AB <- diag(1 / sqrt(diag(sigma_AA))) %*% out %*% diag(1 / sqrt(diag(
     sigma_BB)))
 
+#print(out)
+#print(rho_AB)
+
   if (any(!inrange(rho_AB, c(-1, 1)))){
     cat("\n")
     stop("between-batch covariance implies invalid correlation outside [-1, 1]")
     #print(range(rho_AB))
-    #rho_AB[which(rho_AB > 1)] <- 1
-    #rho_AB[which(rho_AB < -1)] <- -1
+    #rho_AB[which(rho_AB > 1)] <- 0
+    #rho_AB[which(rho_AB < -1)] <- -0
     #out <- diag(sqrt(diag(sigma_AA))) %*% out %*% diag(sqrt(diag(sigma_BB)))
   }
 

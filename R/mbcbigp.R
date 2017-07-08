@@ -40,7 +40,7 @@
 #' }
 
 mbcbigp <-
-function (x, groups = 2, batches = 3, batchindex = NULL, batchsize = NULL,
+function (x, groups = 2, batches = NULL, batchindex = NULL, batchsize = NULL,
   maxiter = 50, plot = FALSE, likelihood = TRUE, verbose = TRUE, abstol = 1e-6,
   method_sigma_AB = c("analytic", "numeric"), z = NULL, scorefun = bestseparated,
   updateA = FALSE)
@@ -55,6 +55,13 @@ function (x, groups = 2, batches = 3, batchindex = NULL, batchsize = NULL,
   x <- data.matrix(x)
   N <- nrow(x)
   p <- ncol(x)
+
+  if (verbose)
+    cat("Setting up batches...\n")
+
+  batchsize <- if (is.null(batchsize))
+    min(ncol(x) / 2, 20)
+  else batchsize
 
   if (!is.null(batchsize))
     batches <- round(p / batchsize)
@@ -110,8 +117,8 @@ function (x, groups = 2, batches = 3, batchindex = NULL, batchsize = NULL,
 
       ## Initial value for cluster membership probabilities for new batch.
 
-      #newz <- batch[[qindex - 1L]]$z
-      newz <- weightedmean.list(lapply(batch, `[[`, "z"), score[1:(q - 1)])
+      newz <- batch[[qindex - 1L]]$z
+      #newz <- weightedmean.list(lapply(batch, `[[`, "z"), score[1:(q - 1)])
       #newz <- initialise.memberships(x = x[, batchindex[[q]]], groups = groups)
 
       ## Conditional model-based clustering.
@@ -125,7 +132,7 @@ function (x, groups = 2, batches = 3, batchindex = NULL, batchsize = NULL,
     }, silent = FALSE)
 
     ## If 'mbc_cond()' throws an error, skip this batch and continue with the
-    ## next batch. If not, calculate the 'scorefun()' update indices and move
+    ## next batch. If not, calculate the 'scorefun()', update indices and move
     ## on.
 
     if (identical(class(tryobj), "try-error")){
@@ -167,8 +174,8 @@ function (x, groups = 2, batches = 3, batchindex = NULL, batchsize = NULL,
   ## Invisibly return S3 object of class 'mbcbigp'. 'z' is the final cluster
   ## membership probabilities, and 'zave' is a simple average of all membership
   ## probabilities over all successful batches. These values should be used with
-  ## care. The membership probabilities for each batch are stored in the 'batch'
-  ## list.
+  ## care. The membership probabilities for each batch are stored as 'z' in each
+  ## element of the 'batch' list.
 
   invisible(structure(list(z = tail(z, 1)[[1]], zave = zave, batch = batch,
     batchindex = batchindexnames, success = success[!is.na(success)], score =

@@ -21,6 +21,11 @@ function (x, pro, mean, sigma, groups)
   z / rowSums(z)
 }
 
+#' @title Expectation step for Conditional Expectation-Maximisation algorithm
+#'
+#' @description Similar to the expectation step in a standard E-M algorithm as
+#'   applied to a mixture of Gaussians.
+
 estep_cond <-
 function (x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups)
 {
@@ -41,6 +46,8 @@ function (x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups)
   z / rowSums(z)
 }
 
+#' @rdname estep_cond
+
 estep_cond2 <-
 function (x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups,
   oldz = NULL)
@@ -58,6 +65,7 @@ function (x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups,
     z[, k] <- log(pro[k]) + mvtnorm::dmvnorm(x = x, mean = mean[, k], sigma =
     as.matrix(sigma), log = TRUE)
   }
+  z <- (3*z + log(oldz)) / 4
   z <- exp(z)
   if (any(apply(z, 2L, function(x) all(x == 0)))){
     #print(head(z, 10))
