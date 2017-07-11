@@ -18,6 +18,8 @@ ensure weights sum to 1.}
 
 \item{method}{The type of estimate returned, \code{"unbiased"} (default) or
 \code{"ML"}, meaning maximum likelihood.}
+
+\item{xcenter, ycenter}{Optional center values for \code{x} and \code{y}.}
 }
 \value{
 A weighted covariance matrix.

@@ -8,9 +8,10 @@
 #'
 #' @param mu_B The mean vector for B.
 #' @param mu_A The mean vector for A.
-#' @param x_A The points in A at which to evaluate the conditional mean of B.
-#' @param sigma_AA The covariance matrix for A.
+#' @param x_A,x_B A dataframe or matrix
+#' @param sigma_AA,sigma_BB The covariance matrix for batches A and B.
 #' @param sigma_AB The cross-covariance matrix for A and B.
+#' @param log Logical switch for log-likelihood.
 #'
 #' @return The relevant mean parameter for the distribution of B given A.
 
@@ -33,18 +34,18 @@ function (sigma_BB, sigma_AB, sigma_AA)
 #' @rdname mean_conditional
 
 dmvnorm_conditional <-
-function(x_A, x_B, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, log = TRUE)
+function(x_A, x_B, mu_A, mu_B, sigma_AA, sigma_AB, sigma_BB, log = TRUE)
 {
-  #mu <- mean_conditional(mu_B = mean_B, mu_A = mean_A, x_A = x_A, sigma_AA =
+  #mu <- mean_conditional(mu_B = mu_B, mu_A = mu_A, x_A = x_A, sigma_AA =
   #  sigma_AA, sigma_AB = sigma_AB)
   #sigma <- sigma_conditional()
   x <- cbind(x_A, x_B)
-  mu <- c(mean_A, mean_B)
+  mu <- c(mu_A, mu_B)
   sigma <- rbind(cbind(sigma_AA, sigma_AB), cbind(t(sigma_AB), sigma_BB))
   joint <- mvtnorm::dmvnorm(x = x, mean = mu, sigma = sigma, log = TRUE)
-  marginal <- mvtnorm::dmvnorm(x = x_A, mean = mean_A, sigma = sigma_AA, log =
+  marginal <- mvtnorm::dmvnorm(x = x_A, mean = mu_A, sigma = sigma_AA, log =
     TRUE)
   if (log)
     joint - marginal
-  else exp(joint - marginal)  
+  else exp(joint - marginal)
 }

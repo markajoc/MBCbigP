@@ -14,7 +14,7 @@ calcloglik_split(x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB,
 logLik.mbcbigp(object, ...)
 }
 \arguments{
-\item{x}{A data frame or matrix of data.}
+\item{x, x_A, x_B}{A dataframe or matrix of data.}
 
 \item{pro}{A vector of mixing proportions.}
 
@@ -24,7 +24,9 @@ logLik.mbcbigp(object, ...)
 
 \item{groups}{The integer number of groups.}
 
-\item{x, x_A, x_B}{A matrix of data.}
+\item{object}{An object of class \code{"mbcbigp"}}
+
+\item{...}{not used}
 }
 \value{
 A single numeric value.

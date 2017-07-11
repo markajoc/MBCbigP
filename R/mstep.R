@@ -57,8 +57,9 @@ function (x, z, groups = NULL, p = NULL)
 #'   \code{z} if not supplied.
 #' @param z A matrix of cluster memberships/probabilities.
 #' @param likelihood Logical for calculating likelihood of these two batches.
-#' @param method_sigma_AB One of \code{"analytic"} or \code{"numeric"} for a
-#'   method of estimating the cross-covariance between batches.
+#' @param method_sigma_AB One of \code{"analytic"} (default) or
+#'   \code{"numeric"}, to choose the method of estimating the between-batch
+#'   covariance for a cluster.
 #' @param updateA Logical for updating the parameters of batch A after
 #'   estimating the parameters for batch B.
 #'

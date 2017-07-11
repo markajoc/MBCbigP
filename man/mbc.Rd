@@ -10,10 +10,10 @@ mbc(x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE,
 
 mbc_cond(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
   likelihood = TRUE, verbose = FALSE, plot = FALSE, abstol = 0.001,
-  method_sigma_AB = c("numeric", "analytic"), updateA = FALSE)
+  method_sigma_AB = c("analytic", "numeric"), updateA = FALSE)
 }
 \arguments{
-\item{x}{Data frame or a matrix}
+\item{x, x_A, x_B}{Data frame or a matrix}
 
 \item{groups}{The number of groups/mixture components to fit.}
 
@@ -21,6 +21,27 @@ mbc_cond(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
 
 \item{likelihood}{Logical indicating whether the log-likelihood should be
 calculated at each step and returned (defaults to \code{TRUE}).}
+
+\item{verbose}{Print verbose output if \code{TRUE}.}
+
+\item{plot}{Visualise the mixture model as it progresses.}
+
+\item{z}{A matrix of cluster probabilities.}
+
+\item{mean_A}{Mean vectors for previous batch.}
+
+\item{sigma_AA}{Covariance matrices for previous batch.}
+
+\item{pro}{Mixing proportions.}
+
+\item{abstol}{Stopping tolerance for likelihood.}
+
+\item{method_sigma_AB}{One of \code{"analytic"} (default) or
+\code{"numeric"}, to choose the method of estimating the between-batch
+covariance for a cluster.}
+
+\item{updateA}{Logical, if \code{TRUE}, updates the parameters for the
+previous batch after estimating the paramters for the current batch.}
 }
 \value{
 A list containing the estimated parameters for the mixture

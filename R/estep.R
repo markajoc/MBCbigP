@@ -7,6 +7,7 @@
 #' @param mean,mean_A,mean_B A 2-D array of mean vectors.
 #' @param sigma,sigma_AA,sigma_AB,sigma_BB A 3-D array of covariance matrices.
 #' @param groups The integer number of groups.
+#' @param oldz Previous matrix of cluster probabilities.
 #'
 #' @return A matrix of probabilities of belonging to a cluster.
 
@@ -23,10 +24,7 @@ function (x, pro, mean, sigma, groups)
   z / rowSums(z)
 }
 
-#' @title Expectation step for Conditional Expectation-Maximisation algorithm
-#'
-#' @description Similar to the expectation step in a standard E-M algorithm as
-#'   applied to a mixture of Gaussians.
+#' @rdname estep
 
 estep_cond <-
 function (x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups)
@@ -48,7 +46,7 @@ function (x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups)
   z / rowSums(z)
 }
 
-#' @rdname estep_cond
+#' @rdname estep
 
 estep_cond2 <-
 function (x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups,

@@ -1,5 +1,13 @@
-useDynLib(MBCbigP)
-exportPattern("^[[:alpha:]]+")
-import(stats, utils, graphics, grDevices, mclust)
-importFrom(Rcpp, evalCpp)
-importFrom(flexclust, randIndex)
+useDynLib("MBCbigP")
+
+## Exports
+
+export("mbc", "mbcbigp")
+export("colMeans.weighted", "var.wt")
+export("initialise.memberships")
+
+## Imports
+
+import("stats", "utils", "graphics", "grDevices", "mclust")
+importFrom("Rcpp", "evalCpp")
+importFrom("flexclust", "randIndex")

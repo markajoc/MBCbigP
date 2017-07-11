@@ -11,6 +11,7 @@
 #'   ensure weights sum to 1.
 #' @param method The type of estimate returned, \code{"unbiased"} (default) or
 #'   \code{"ML"}, meaning maximum likelihood.
+#' @param xcenter,ycenter Optional center values for \code{x} and \code{y}.
 #'
 #' @return A weighted covariance matrix.
 #'

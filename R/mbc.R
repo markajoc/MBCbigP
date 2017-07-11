@@ -2,11 +2,23 @@
 #'
 #' @description Fit a mixture of multivariate Gaussians
 #'
-#' @param x Data frame or a matrix
+#' @param x,x_A,x_B Data frame or a matrix
 #' @param groups The number of groups/mixture components to fit.
 #' @param maxiter The maximum number of iterations for the E-M algorithm.
 #' @param likelihood Logical indicating whether the log-likelihood should be
 #'   calculated at each step and returned (defaults to \code{TRUE}).
+#' @param verbose Print verbose output if \code{TRUE}.
+#' @param plot Visualise the mixture model as it progresses.
+#' @param z A matrix of cluster probabilities.
+#' @param mean_A Mean vectors for previous batch.
+#' @param sigma_AA Covariance matrices for previous batch.
+#' @param pro Mixing proportions.
+#' @param abstol Stopping tolerance for likelihood.
+#' @param method_sigma_AB One of \code{"analytic"} (default) or
+#'   \code{"numeric"}, to choose the method of estimating the between-batch
+#'   covariance for a cluster.
+#' @param updateA Logical, if \code{TRUE}, updates the parameters for the
+#'   previous batch after estimating the paramters for the current batch.
 #'
 #' @return A list containing the estimated parameters for the mixture
 #'   distribution.

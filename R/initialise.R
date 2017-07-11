@@ -7,7 +7,7 @@
 #' @param groups The number of groups.
 #' @param method The method to give initial clustering.
 #'
-#' @return A \code{K} x \code{nrow(x)} matrix of 0/1 entries denoting cluster
+#' @return A \code{groups} x \code{nrow(x)} matrix of 0/1 entries denoting cluster
 #'   membership.
 #'
 #' @examples

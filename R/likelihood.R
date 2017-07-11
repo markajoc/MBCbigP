@@ -2,12 +2,13 @@
 #'
 #' @description Calculate log-likelihood for a Gaussian mixture model.
 #'
-#' @param x A data frame or matrix of data.
-#' @param x,x_A,x_B A matrix of data.
+#' @param x,x_A,x_B A dataframe or matrix of data.
 #' @param pro A vector of mixing proportions.
 #' @param mean,mean_A,mean_B A 2-D array of mean vectors.
 #' @param sigma,sigma_AA,sigma_AB,sigma_BB A 3-D array of covariance matrices.
 #' @param groups The integer number of groups.
+#' @param object An object of class \code{"mbcbigp"}
+#' @param ... not used
 #'
 #' @return A single numeric value.
 

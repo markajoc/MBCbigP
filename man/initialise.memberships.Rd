@@ -14,7 +14,7 @@ initialise.memberships(x, groups, method = c("kmeans", "hclust"))
 \item{method}{The method to give initial clustering.}
 }
 \value{
-A \code{K} x \code{nrow(x)} matrix of 0/1 entries denoting cluster
+A \code{groups} x \code{nrow(x)} matrix of 0/1 entries denoting cluster
   membership.
 }
 \description{
