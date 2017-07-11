@@ -2,9 +2,11 @@
 #'
 #' @description Expectation step for Expectation-Maximisation algorithm
 #'
-#' @param x A matrix of data.
-#' @param parameters A list containing the parameters of the Gaussian mixture
-#'   model.
+#' @param x,x_A,x_B A matrix of data.
+#' @param pro A vector of mixing proportions.
+#' @param mean,mean_A,mean_B A 2-D array of mean vectors.
+#' @param sigma,sigma_AA,sigma_AB,sigma_BB A 3-D array of covariance matrices.
+#' @param groups The integer number of groups.
 #'
 #' @return A matrix of probabilities of belonging to a cluster.
 

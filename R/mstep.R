@@ -50,11 +50,17 @@ function (x, z, groups = NULL, p = NULL)
 #' @param sigma_AB Starting value for the covariance between batches A and B. If
 #'   \code{NULL}, initialised at all zeros.
 #' @param mean_B Starting value for the mean vectors for the current batch.
-#' @param z A matrix of cluster memberships/probabilities.
+#' @param sigma_BB Starting value for the covariance matrix for the current
+#'   batch.
+#' @param pro Starting value for mixing proportions.
 #' @param groups Optional, number of groups in the mixture, inferred from
 #'   \code{z} if not supplied.
-#' @param p Optional, dimension of \code{x}, inferred from \code{x} if not
-#'   supplied
+#' @param z A matrix of cluster memberships/probabilities.
+#' @param likelihood Logical for calculating likelihood of these two batches.
+#' @param method_sigma_AB One of \code{"analytic"} or \code{"numeric"} for a
+#'   method of estimating the cross-covariance between batches.
+#' @param updateA Logical for updating the parameters of batch A after
+#'   estimating the parameters for batch B.
 #'
 #' @return A list of parameter estimates for the mixing proportions, mean
 #'   vectors, and covariance matrices.
@@ -62,7 +68,7 @@ function (x, z, groups = NULL, p = NULL)
 mstep_cond <-
 function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
   sigma_BB = NULL, pro = NULL, groups, z, likelihood = FALSE, method_sigma_AB =
-  c("numeric", "analytic"))
+  c("analytic", "numeric"), updateA = FALSE)
 {
   x_A <- data.matrix(x_A)
   x_B <- data.matrix(x_B)
@@ -139,27 +145,29 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
 
   mu_A_new <- NA * mean_A
   sigma_AA_new <- NA * sigma_AA
-  for (k in 1:groups){
-    mu_A_new[, k] <- estimate_mu_B(
-      x_B = x_A,
-      z = z[, k],
-      sigma_AB = t(sigma_AB[, , k]),
-      sigma_AA = sigma_BB[, , k],
-      x_A = x_B,
-      mu_A = mu_B[, k])
-    muBgivenA <- mean_conditional(
-      mu_B = mu_A_new[, k],
-      mu_A = mu_B[, k],
-      x_A = x_B,
-      sigma_AA = sigma_BB[, , k],
-      sigma_AB = t(sigma_AB[, , k]))
-    sigma_AA_new[, , k] <- estimate_sigma_BB_cathal(
-      x_B = x_A,
-      mu_BgivenA = muBgivenA,
-      z = z[, k],
-      sigma_AB = t(sigma_AB[, , k]),
-      sigma_AA = sigma_BB[, , k])
 
+  if (updateA) {
+    for (k in 1:groups){
+      mu_A_new[, k] <- estimate_mu_B(
+        x_B = x_A,
+        z = z[, k],
+        sigma_AB = t(sigma_AB[, , k]),
+        sigma_AA = sigma_BB[, , k],
+        x_A = x_B,
+        mu_A = mu_B[, k])
+      muBgivenA <- mean_conditional(
+        mu_B = mu_A_new[, k],
+        mu_A = mu_B[, k],
+        x_A = x_B,
+        sigma_AA = sigma_BB[, , k],
+        sigma_AB = t(sigma_AB[, , k]))
+      sigma_AA_new[, , k] <- estimate_sigma_BB_cathal(
+        x_B = x_A,
+        mu_BgivenA = muBgivenA,
+        z = z[, k],
+        sigma_AB = t(sigma_AB[, , k]),
+        sigma_AA = sigma_BB[, , k])
+    }
   }
 
   loglik <- if (likelihood){

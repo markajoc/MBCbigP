@@ -66,7 +66,7 @@ function (x, parameters, z, groups = NULL, p = NULL)
 }
 
 update.mbcplot <-
-function (object, parameters, z)
+function (object, parameters, z, ...)
 {
   clustering <- mclust::map(z)
   dev.set(object$device)
@@ -108,7 +108,7 @@ function (x_A, x_B, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, z,
 }
 
 update.mbcbigpplot <-
-function (object, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, z, groups)
+function (object, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, z, groups, ...)
 {
   parameters <- list()
   parameters$mean <- reform_mean(mean_A = mean_A, mean_B = mean_B, groups =

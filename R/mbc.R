@@ -94,7 +94,7 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
 
 mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
   likelihood = TRUE, verbose = FALSE, plot = FALSE, abstol = 1e-3,
-  method_sigma_AB = c("numeric", "analytic"), updateA = FALSE)
+  method_sigma_AB = c("analytic", "numeric"), updateA = FALSE)
 {
   method_sigma_AB <- match.arg(method_sigma_AB)
   loglik <- vector()

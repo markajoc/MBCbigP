@@ -7,10 +7,15 @@
 estep(x, pro, mean, sigma, groups)
 }
 \arguments{
-\item{x}{A matrix of data.}
+\item{x, x_A, x_B}{A matrix of data.}
 
-\item{parameters}{A list containing the parameters of the Gaussian mixture
-model.}
+\item{pro}{A vector of mixing proportions.}
+
+\item{mean, mean_A, mean_B}{A 2-D array of mean vectors.}
+
+\item{sigma, sigma_AA, sigma_AB, sigma_BB}{A 3-D array of covariance matrices.}
+
+\item{groups}{The integer number of groups.}
 }
 \value{
 A matrix of probabilities of belonging to a cluster.

@@ -16,11 +16,15 @@ logLik.mbcbigp(object, ...)
 \arguments{
 \item{x}{A data frame or matrix of data.}
 
-\item{object}{A fitted model object of class \code{"mbc"}.}
+\item{pro}{A vector of mixing proportions.}
 
-\item{...}{not currently used.}
+\item{mean, mean_A, mean_B}{A 2-D array of mean vectors.}
 
-\item{parameters}{A list of parameters for the model.}
+\item{sigma, sigma_AA, sigma_AB, sigma_BB}{A 3-D array of covariance matrices.}
+
+\item{groups}{The integer number of groups.}
+
+\item{x, x_A, x_B}{A matrix of data.}
 }
 \value{
 A single numeric value.

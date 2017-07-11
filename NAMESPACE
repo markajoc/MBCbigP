@@ -1,5 +1,5 @@
 useDynLib(MBCbigP)
 exportPattern("^[[:alpha:]]+")
+import(stats, utils, graphics, grDevices, mclust)
 importFrom(Rcpp, evalCpp)
-import(stats, mclust)
 importFrom(flexclust, randIndex)
