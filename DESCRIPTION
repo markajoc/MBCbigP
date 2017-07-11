@@ -2,7 +2,7 @@ Package: MBCbigP
 Type: Package
 Title: Model-Based Clustering for High-Dimensional Data
 Version: 0.0
-Date: 2016-11-15
+Date: 2017-07-11
 Authors@R: c(
   person("Mark", "O'Connell", email = "moconnell@ucd.ie",
     role = c("aut", "cre"))
