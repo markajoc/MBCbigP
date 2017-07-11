@@ -166,7 +166,7 @@ function (x, groups = 2, batches = NULL, batchindex = NULL, batchsize = NULL,
 
   if (verbose){
     cat(paste0("\n\nFinished. Processed ", length(batch), "/", Q, " batches (",
-      round(100 * length(batch) / Q),"%)\n\n"))
+      round(100 * length(batch) / Q),"%).\n\n"))
   } else close(pb)
 
   endtime <- Sys.time()
