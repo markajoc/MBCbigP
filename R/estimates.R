@@ -30,7 +30,7 @@ function (x_B, mu_B, x_A, mu_A, sigma_AA, sigma_AB, z)
   W_BB <- crossprod(wsq * sweep(x_B, 2, mu_B))
   W_AB <- crossprod(wsq * sweep(x_A, 2, mu_B), wsq * sweep(x_B, 2, mu_B))
   prec_BB <- (t(sigma_AB) %*% sigma_AA_inverse %*% W_AA %*% sigma_AA_inverse %*%
-    sigma_AB - 2 * t(W_AB) %*% sigma_AA_inverse %*% sigma_AB + W_BB) 
+    sigma_AB - 2 * t(W_AB) %*% sigma_AA_inverse %*% sigma_AB + W_BB)
   out <- prec_BB + t(sigma_AB) %*% sigma_AA_inverse %*% sigma_AB
   rownames(out) <- colnames(out) <- colnames(x_B)
   out
@@ -92,7 +92,7 @@ function (x_A, x_B, mu_A, mu_B, sigma_AA, sigma_BB, sigma_AB, pro, groups)
     pro, groups = groups)#, lower = -1, upper = 1)
   rho_AB_new <- array(est$par, dim = dim(sigma_AB))
 
-print(rho_AB_new)
+  #print(rho_AB_new)
 
   #print(est$value)
   rho_AB_new
