@@ -161,6 +161,7 @@ function (x, groups = 2, batches = NULL, batchindex = NULL, batchsize = NULL,
 
   batchindexnames <- if (!is.character(batchindex[[1]]))
     lapply(batchindex, function (tmp) colnames(x)[tmp])
+  else batchindex  
 
   ## Print the proportion of batches that succeeded.
 
