@@ -15,6 +15,30 @@ function (x, chunks, each)
   lapply(as.list(unique(ind)), function (o) x[which(o == ind)])
 }
 
+chunkrand <-
+function(x, chunks, each, useall = FALSE)
+{
+  if (missing(chunks) || missing(each))
+    stop("need to supply 'chunks' and 'each' for 'chunkrand'")
+  n <- length(x)
+  out <- list()
+  out[[1L]] <- sample(x, each)
+  if (useall){
+    cand <- setdiff(x, unlist(out[1L]))
+    for (i in 2:chunks){
+      out[[i]] <- sample(cand, each)
+      cand <- if (length(cand) > each)
+        setdiff(cand, unlist(out[i]))
+      else setdiff(x, unlist(out[i]))
+    }
+  } else {
+    for (i in 2:chunks){
+      out[[i]] <- sample(setdiff(x, unlist(out[i - 1L])), each)
+    }
+  }
+  out
+}
+
 cov.test <-
 function (z, ya, mua, yb, mub)
 {
