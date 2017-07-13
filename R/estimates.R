@@ -28,7 +28,7 @@ function (x_B, mu_B, x_A, mu_A, sigma_AA, sigma_AB, z)
   sigma_AA_inverse <- solve(sigma_AA)
   W_AA <- crossprod(wsq * sweep(x_A, 2, mu_A))
   W_BB <- crossprod(wsq * sweep(x_B, 2, mu_B))
-  W_AB <- crossprod(wsq * sweep(x_A, 2, mu_B), wsq * sweep(x_B, 2, mu_B))
+  W_AB <- crossprod(wsq * sweep(x_A, 2, mu_A), wsq * sweep(x_B, 2, mu_B))
   prec_BB <- (t(sigma_AB) %*% sigma_AA_inverse %*% W_AA %*% sigma_AA_inverse %*%
     sigma_AB - 2 * t(W_AB) %*% sigma_AA_inverse %*% sigma_AB + W_BB)
   out <- prec_BB + t(sigma_AB) %*% sigma_AA_inverse %*% sigma_AB
@@ -39,12 +39,13 @@ function (x_B, mu_B, x_A, mu_A, sigma_AA, sigma_AB, z)
 estimate_mu_B <-
 function (x_B, z, sigma_AB, sigma_AA, x_A, mu_A)
 {
+  x_B <- data.matrix(x_B)
+  x_A <- data.matrix(x_A)
   out <- colMeans.weighted(x_B, w = z) - t(sigma_AB) %*% solve(sigma_AA) %*%
     colMeans.weighted(sweep(x_A, 2, mu_A), w = z)
   if (any(is.na(out))){
     cat("\n")
     stop("conditional mean estimate contains NA/NaN")
-    #browser()
   }
   names(out) <- colnames(x_B)
   out
