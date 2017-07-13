@@ -111,36 +111,25 @@ function(x_A, x_B, mu_A, mu_B, sigma_AA, sigma_BB, z)
   W_AA <- crossprod(sqrt(w) * sweep(x_A, 2, mu_A))
   W_AB <- crossprod(sqrt(w) * sweep(x_A, 2, mu_A), sqrt(w) * sweep(x_B, 2,
     mu_B))
-
   W_AA_inverse <- solve(W_AA)
   out <- sigma_AA %*% W_AA_inverse %*% W_AB
 
   if (any(is.na(out))){
     cat("\n")
     stop("between-batch covariance estimate contains NA/NaN")
-    #browser()
   }
+
+  ## Check that this estimate implies sensible correlation values in [-1, 1].
+
   rho_AB <- out * NA
   rho_AB <- diag(1 / sqrt(diag(sigma_AA))) %*% out %*% diag(1 / sqrt(diag(
     sigma_BB)))
 
-#print(out)
-#print(rho_AB)
-
   if (any(!inrange(rho_AB, c(-1, 1)))){
     cat("\n")
     stop("between-batch covariance implies invalid correlation outside [-1, 1]")
-    #print(range(rho_AB))
-    #rho_AB[which(rho_AB > 1)] <- 0
-    #rho_AB[which(rho_AB < -1)] <- -0
-    #out <- diag(sqrt(diag(sigma_AA))) %*% out %*% diag(sqrt(diag(sigma_BB)))
   }
 
-  #print(range(round(rho_AB, 3)))
-
-  #sigma_AA_inverse <- solve(sigma_AA)
-  #out <- solve(sigma_AA_inverse %*% W_AA %*% sigma_AA_inverse) %*%
-  #  (sigma_AA_inverse %*% W_AB)
   dimnames(out) <- list(colnames(x_A), colnames(x_B))
   out
 }
