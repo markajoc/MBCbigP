@@ -100,8 +100,8 @@ randIndex.mbcbigp <-
 function(object, true, ...)
 {
   clustering <- lapply(object$batch, function(obj) mclust::map(obj$z))
-  unname(unlist(lapply(clustering, function(obj) flexclust::randIndex(obj, true)
-    )))
+  unname(unlist(lapply(clustering, function(obj) flexclust::randIndex(obj, true,
+    ...))))
 }
 
 createbatchindex <-
