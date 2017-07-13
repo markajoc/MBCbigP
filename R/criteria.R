@@ -14,5 +14,5 @@ function(mean, sigma, groups, ...)
 {
   d <- dist(t(mean))
   s <- mean(apply(sigma, 3, diag))
-  max(d / s)
+  mean(head(sort(d / s, decreasing = TRUE), 5))
 }
