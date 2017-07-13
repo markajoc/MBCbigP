@@ -103,26 +103,29 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
       sigma_AA[, , k],
       x_A = x_A,
       mu_A = mean_A[, k])
-    muBgivenA <- mean_conditional(
-      mu_B = mu_B[, k],
-      mu_A = mean_A[, k],
-      x_A = x_A,
-      sigma_AA = sigma_AA[, , k],
-      sigma_AB = sigma_AB[, , k])
-    sigma_BB[, , k] <- estimate_sigma_BB_cathal(
-      x_B = x_B,
-      mu_BgivenA = muBgivenA,
-      z = z[, k],
-      sigma_AB = sigma_AB[, , k],
-      sigma_AA = sigma_AA[, , k])
-    #sigma_BB[, , k] <- estimate_sigma_BB_michael(
-    #  x_B = x_B,
-    #  mu_B = mu_B[, k],
-    #  x_A = x_A,
-    #  mu_A = mean_A[, k],
-    #  sigma_AA = sigma_AA[, , k],
-    #  sigma_AB = sigma_AB[, , k],
-    #  z = z[, k])
+    if (TRUE){
+      muBgivenA <- mean_conditional(
+        mu_B = mu_B[, k],
+        mu_A = mean_A[, k],
+        x_A = x_A,
+        sigma_AA = sigma_AA[, , k],
+        sigma_AB = sigma_AB[, , k])
+      sigma_BB[, , k] <- estimate_sigma_BB_cathal(
+        x_B = x_B,
+        mu_BgivenA = muBgivenA,
+        z = z[, k],
+        sigma_AB = sigma_AB[, , k],
+        sigma_AA = sigma_AA[, , k])
+    } else {
+      sigma_BB[, , k] <- estimate_sigma_BB_michael(
+        x_B = x_B,
+        mu_B = mu_B[, k],
+        x_A = x_A,
+        mu_A = mean_A[, k],
+        sigma_AA = sigma_AA[, , k],
+        sigma_AB = sigma_AB[, , k],
+        z = z[, k])
+    }
     if (analytic){
       sigma_AB[, , k] <- estimate_sigma_AB_michael(
         x_A = x_A,
