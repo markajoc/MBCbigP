@@ -119,7 +119,7 @@ mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
     parameters <- mstep_cond(x_B = x_B, x_A = x_A, z = z, mean_A = mean_A,
       sigma_AA = sigma_AA, sigma_AB = if (times == 1) NULL else parameters$cov,
       pro = if (times == 1) pro else parameters$pro, groups = groups,
-      method_sigma_AB = method_sigma_AB)
+      method_sigma_AB = method_sigma_AB, updateA = updateA)
 
     if (updateA){
       mean_A <- parameters$meanprev
