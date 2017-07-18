@@ -86,6 +86,12 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
     array(0, dim = c(ncol(x_A), ncol(x_B), groups))
   else sigma_AB
 
+  ## Mixing proportions.
+
+  pro <- colMeans(z)
+  if (any(pro <= 0 || pro > 1))
+    warning("mixing proportions outside (0,1]")
+
   ## For each group, calculate the covariance between batches, the mean adjusted
   ## for the group probabilities (z), and the covariance matrix for the current
   ## batch (should also be adjusted for z).
@@ -194,7 +200,7 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
       sigma_BB = sigma_BB,
       groups = groups)
   } else NULL
-  structure(list(pro = colMeans(z), mean = mu_B, sigma = sigma_BB, cov =
+  structure(list(pro = pro, mean = mu_B, sigma = sigma_BB, cov =
     sigma_AB, meanprev = mu_A_new, sigmaprev = sigma_AA_new, groups = groups),
     class = "mbcparameters")
 }
