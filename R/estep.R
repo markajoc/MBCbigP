@@ -36,13 +36,11 @@ function (x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups)
     sigma <- rbind(cbind(sigma_AA[, , k], sigma_AB[, , k]),
       cbind(t(sigma_AB[, , k]), sigma_BB[, , k]))
     z[, k] <- log(pro[k]) + mvtnorm::dmvnorm(x = x, mean = mean[, k], sigma =
-    as.matrix(sigma), log = TRUE)
+      as.matrix(sigma), log = TRUE)
   }
   z <- exp(z)
-  if (any(apply(z, 2L, function(x) all(x == 0)))){
-    #print(head(z, 10))
+  if (any(apply(z, 2L, function(x) all(x == 0))))
     stop("assigned all observations to zero in column of cluster memberships")
-  }
   z / rowSums(z)
 }
 
@@ -63,14 +61,11 @@ function (x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups,
     sigma <- rbind(cbind(sigma_AA[, , k], sigma_AB[, , k]),
       cbind(t(sigma_AB[, , k]), sigma_BB[, , k]))
     z[, k] <- log(pro[k]) + mvtnorm::dmvnorm(x = x, mean = mean[, k], sigma =
-    as.matrix(sigma), log = TRUE)
+      as.matrix(sigma), log = TRUE)
   }
   z <- (3*z + log(oldz)) / 4
   z <- exp(z)
-  if (any(apply(z, 2L, function(x) all(x == 0)))){
-    #print(head(z, 10))
+  if (any(apply(z, 2L, function(x) all(x == 0))))
     stop("assigned all observations to zero in column of cluster memberships")
-  }
-  #z <- z * (oldz)
   structure(z / rowSums(z), unscaled = z)
 }
