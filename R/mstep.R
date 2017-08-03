@@ -82,7 +82,8 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
   sigma_BB <- if (is.null(sigma_BB))
     array(dim = c(ncol(x_B), ncol(x_B), groups))
   else sigma_BB
-  sigma_AB <- if (is.null(sigma_AB))
+  sigma_AB <-
+  cor_AB <- if (is.null(sigma_AB))
     array(0, dim = c(ncol(x_A), ncol(x_B), groups))
   else sigma_AB
 
@@ -133,7 +134,7 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
         z = z[, k])
     }
     if (analytic){
-      sigma_AB[, , k] <- estimate_sigma_AB_michael(
+      tmp <- estimate_sigma_AB_michael(
         x_A = x_A,
         x_B = x_B,
         mu_A = mean_A[, k],
@@ -141,6 +142,8 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
         sigma_AA = sigma_AA[, , k],
         sigma_BB = sigma_BB[, , k],
         z = z[, k])
+      sigma_AB[, , k] <- tmp
+      cor_AB[, , k] <- attr(tmp, "cor")
     }
   }
 
@@ -201,6 +204,6 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
       groups = groups)
   } else NULL
   structure(list(pro = pro, mean = mu_B, sigma = sigma_BB, cov =
-    sigma_AB, meanprev = mu_A_new, sigmaprev = sigma_AA_new, groups = groups),
-    class = "mbcparameters")
+    structure(sigma_AB, cor = cor_AB), meanprev = mu_A_new, sigmaprev =
+    sigma_AA_new, groups = groups), class = "mbcparameters")
 }
