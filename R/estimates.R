@@ -134,5 +134,5 @@ function(x_A, x_B, mu_A, mu_B, sigma_AA, sigma_BB, z)
   }
 
   dimnames(out) <- list(colnames(x_A), colnames(x_B))
-  out
+  structure(out, cor = rho_AB)
 }
