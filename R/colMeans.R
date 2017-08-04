@@ -3,7 +3,8 @@
 #' @description Calculate weighted column means of a matrix or dataframe.
 #'
 #' @param x A numeric matrix or dataframe.
-#' @param w A vector of weights, must be same length as \code{x}.
+#' @param w A vector of weights, must be same length as number of rows in
+#'   \code{x}.
 #' @param ... passed to \code{\link{weighted.mean}}
 #'
 #' @return A vector of weighted means.
