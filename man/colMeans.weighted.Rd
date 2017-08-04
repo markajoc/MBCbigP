@@ -9,7 +9,8 @@ colMeans.weighted(x, w, ...)
 \arguments{
 \item{x}{A numeric matrix or dataframe.}
 
-\item{w}{A vector of weights, must be same length as \code{x}.}
+\item{w}{A vector of weights, must be same length as number of rows in
+\code{x}.}
 
 \item{...}{passed to \code{\link{weighted.mean}}}
 }
