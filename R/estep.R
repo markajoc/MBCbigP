@@ -26,6 +26,8 @@ function (x, pro, mean, sigma, groups)
 
 #' @rdname estep
 
+## TODO: try conditioning z matrix on more history
+
 estep_cond <-
 function (x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups)
 {
