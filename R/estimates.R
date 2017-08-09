@@ -21,6 +21,10 @@ function (x_B, mu_B, x_A, mu_A, sigma_AA, sigma_AB, z)
   W_AB <- crossprod(x_A_cen, x_B_cen)
   prec_BB <- (t(sigma_AB) %*% sigma_AA_inverse %*% W_AA %*% sigma_AA_inverse %*%
     sigma_AB - 2 * t(W_AB) %*% sigma_AA_inverse %*% sigma_AB + W_BB)
+
+  ## The term `t(W_AB) %*% sigma_AA_inverse %*% sigma_AB` does not appear to be
+  ## symmetric, and so neither does `prec_BB`...
+
   out <- prec_BB + t(sigma_AB) %*% sigma_AA_inverse %*% sigma_AB
   rownames(out) <- colnames(out) <- colnames(x_B)
   out
