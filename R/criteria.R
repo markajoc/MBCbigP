@@ -9,6 +9,8 @@
 #'
 #' @return A number.
 
+## This is only a rough measure of cluster separation.
+
 bestseparated <-
 function(mean, sigma, groups, ...)
 {

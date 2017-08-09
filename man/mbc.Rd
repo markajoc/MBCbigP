@@ -10,7 +10,7 @@ mbc(x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE,
 
 mbc_cond(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
   likelihood = TRUE, verbose = FALSE, plot = FALSE, abstol = 0.001,
-  method_sigma_AB = c("analytic", "numeric"), updateA = FALSE)
+  method_sigma_AB = c("analytic", "numerical"), updateA = FALSE)
 }
 \arguments{
 \item{x, x_A, x_B}{Data frame or a matrix}
@@ -37,7 +37,7 @@ calculated at each step and returned (defaults to \code{TRUE}).}
 \item{abstol}{Stopping tolerance for likelihood.}
 
 \item{method_sigma_AB}{One of \code{"analytic"} (default) or
-\code{"numeric"}, to choose the method of estimating the between-batch
+\code{"numerical"}, to choose the method of estimating the between-batch
 covariance for a cluster.}
 
 \item{updateA}{Logical, if \code{TRUE}, updates the parameters for the

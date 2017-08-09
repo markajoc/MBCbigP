@@ -19,7 +19,7 @@
 #' @param abstol Numeric, tolerance for log-likelihood stopping rule. Defaults
 #'   to 1e-6.
 #' @param method_sigma_AB One of \code{"analytic"} (default) or
-#'   \code{"numeric"}, to choose the method of estimating the between-batch
+#'   \code{"numerical"}, to choose the method of estimating the between-batch
 #'   covariance for a cluster.
 #' @param z Initial cluster membership probabilities. Numeric matrix.
 #' @param scorefun A function to score the clustering of the data at each batch,
@@ -42,7 +42,7 @@
 mbcbigp <-
 function (x, groups = 2, batches = NULL, batchindex = NULL, batchsize = NULL,
   maxiter = 50, plot = FALSE, likelihood = TRUE, verbose = TRUE, abstol = 1e-6,
-  method_sigma_AB = c("analytic", "numeric"), z = NULL, scorefun = bestseparated,
+  method_sigma_AB = c("analytic", "numerical"), z = NULL, scorefun = bestseparated,
   updateA = FALSE)
 {
   ## Setting seed for development purposes. TODO: remove later.

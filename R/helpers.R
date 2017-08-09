@@ -15,6 +15,10 @@ function (x, chunks, each)
   lapply(as.list(unique(ind)), function (o) x[which(o == ind)])
 }
 
+## Function to do the same thing as chunk, but randomly. `useall` is a logical
+## switch where FALSE gives sampling with replacement and does not guarantee
+## every column of `x` to be used.
+
 chunkrand <-
 function(x, chunks, each, useall = FALSE)
 {
@@ -39,17 +43,8 @@ function(x, chunks, each, useall = FALSE)
   out
 }
 
-cov.test <-
-function (z, ya, mua, yb, mub)
-{
-  ya <- data.matrix(ya)
-  yb <- data.matrix(yb)
-  tmp <- 0
-  for (i in seq_along(z)){
-    tmp <- tmp + z[i] * (ya[i, ] - mua) %*% t(yb[i, ] - mub)
-  }
-  tmp / sum(z)
-}
+## Functions to form the full covariance matrix and mean vector from the block
+## matrix pieces.
 
 reform_sigma <-
 function (sigma_AA, sigma_AB, sigma_BB, groups){
@@ -73,11 +68,15 @@ function (mean_A, mean_B, groups){
   mean
 }
 
+## Function to check if values fall within a range.
+
 inrange <-
 function (x, range)
 {
   sapply(findInterval(x, range(range), rightmost.closed = TRUE), identical, 1L)
 }
+
+## Weighted mean of list elements. Suitable for a list of matrices.
 
 weightedmean.list <-
 function(x, w, ...)
@@ -96,6 +95,8 @@ function(x, w, ...)
   out
 }
 
+## Calculate the Rand index for the final clustering from `mbcbigp`.
+
 randIndex.mbcbigp <-
 function(object, true, ...)
 {
@@ -103,6 +104,8 @@ function(object, true, ...)
   unname(unlist(lapply(clustering, function(obj) flexclust::randIndex(obj, true,
     ...))))
 }
+
+## Create a list describing batches to visit for `mbcbigp`.
 
 createbatchindex <-
 function (p, batches = NULL, batchsize = NULL)

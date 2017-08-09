@@ -1,6 +1,9 @@
 plotmbc <-
 function (x, parameters, z, groups = NULL, p = NULL)
 {
+  ## Make sure there are no previous `dev.hold` commands in the way, as might
+  ## after an unhandled error.
+
   dev.flush()
   p <- if (is.null(p))
     ncol(x)
@@ -8,6 +11,9 @@ function (x, parameters, z, groups = NULL, p = NULL)
   groups <- if (is.null(groups))
     ncol(parameters$mean)
   else groups
+
+  ## Set up plotting screens.
+
   close.screen(all.screens = TRUE)
   scr <- split.screen(c(p + 2, p + 2))
   scr2 <- (matrix(scr, ncol = p + 2)[c(-1, -(p + 2)), c(-1, -(p + 2))])
@@ -18,19 +24,29 @@ function (x, parameters, z, groups = NULL, p = NULL)
   cols <- matrix(rep(1:p, p), ncol = p)
   rows <- as.vector(rows[lower.tri(rows, diag = TRUE)])
   cols <- as.vector(cols[lower.tri(cols, diag = TRUE)])
+
+  ## Use colours from `mclust` package.
+
   groupcolour <- rep(c("dodgerblue2", "red3", "green3", "slateblue",
     "darkorange", "skyblue1", "violetred4", "forestgreen", "steelblue4",
     "slategrey", "brown", "black", "darkseagreen", "darkgoldenrod3",
     "olivedrab", "royalblue", "tomato4", "cyan2", "springgreen2"), length.out
     = groups)
+
+  ## Get a hard clustering from the membership probabilities.
+
   clustering <- mclust::map(z)
+
+  ## Hold the device and draw each scatterplot with clusters shown as ellipses.
+
   dev.hold()
   for (i in seq_along(scr2)){
     screen(scr2[i])
     par(mar = c(0.1, 0.1, 0.1, 0.1))
     par(mgp = c(3, 0.25, 0.15))
     plot(x[, cols[i]], x[, rows[i]], xlab = "", ylab = "", xaxt = "n", yaxt =
-      "n", col = if (identical(rows[i], cols[i])) NULL else groupcolour[clustering], cex = 0.5)
+      "n", col = if (identical(rows[i], cols[i])) NULL else groupcolour[
+      clustering], cex = 0.5)
     if (!identical(rows[i], cols[i])){
       cn <- colnames(x)[c(cols[i], rows[i])]
       if (all(cn %in% rownames(parameters$mean))){
@@ -40,6 +56,9 @@ function (x, parameters, z, groups = NULL, p = NULL)
         }
       }
     }
+
+    ## Axis plotting.
+
     if (identical(rows[i], 1L) & (2 * (round(cols[i] / 2)) == cols[i]))
       axis(3, cex.axis = 0.7, tcl = -0.2)
     if (identical(rows[i], p) & !(2 * (round(cols[i] / 2)) == cols[i]))
@@ -51,19 +70,27 @@ function (x, parameters, z, groups = NULL, p = NULL)
     if (identical(rows[i], cols[i]))
       text(x = mean(range(x[, rows[i]])), y = mean(range(x[, cols[i]])),
         labels = colnames(x)[rows[i]])
+
+    ## Save some useful info which may be lost by switching screens/devices.
+
     mar.matrix[i, ] <- par("mar")
     usr.matrix[i, ] <- par("usr")
     fig.matrix[i, ] <- par("fig")
   }
+
+  ## Flush all drawing to the screen and return an object for updating later.
+
+  dev.flush()
   coords <- data.frame(fig.matrix)
   names(coords) <- c("xleft", "xright", "ybottom", "ytop")
   coords$xcplots.index <- scr2
-  dev.flush()
   invisible(structure(list(x = x, p = p, groups = groups, groupcolour =
     groupcolour, rows = rows, cols = cols, scr2 = scr2, coords = coords, device
     = dev.cur(), mar.matrix = mar.matrix, usr.matrix = usr.matrix), class =
     "mbcplot"))
 }
+
+## Update function for the object returned by `plotmbc`.
 
 update.mbcplot <-
 function (object, parameters, z, ...)
@@ -93,6 +120,8 @@ function (object, parameters, z, ...)
   dev.flush()
   invisible(object)
 }
+
+## Wrappers for `plotmbc` for the `mbcbigp` function.
 
 plotmbcbigp <-
 function (x_A, x_B, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, z,

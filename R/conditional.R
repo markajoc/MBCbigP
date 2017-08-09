@@ -18,8 +18,6 @@
 mean_conditional <-
 function (mu_B, mu_A, x_A, sigma_AA, sigma_AB)
 {
-  ## mu_BgivenA = mu_B + sigma_BA %*% solve(sigma_AA) %*% (x_A - mu_A)
-
   t(mu_B + t(sigma_AB) %*% solve(sigma_AA) %*% t(sweep(x_A, 2, mu_A)))
 }
 
@@ -36,9 +34,6 @@ function (sigma_BB, sigma_AB, sigma_AA)
 dmvnorm_conditional <-
 function(x_A, x_B, mu_A, mu_B, sigma_AA, sigma_AB, sigma_BB, log = TRUE)
 {
-  #mu <- mean_conditional(mu_B = mu_B, mu_A = mu_A, x_A = x_A, sigma_AA =
-  #  sigma_AA, sigma_AB = sigma_AB)
-  #sigma <- sigma_conditional()
   x <- cbind(x_A, x_B)
   mu <- c(mu_A, mu_B)
   sigma <- rbind(cbind(sigma_AA, sigma_AB), cbind(t(sigma_AB), sigma_BB))

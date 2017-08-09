@@ -6,7 +6,7 @@
 \usage{
 mstep_cond(x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
   sigma_BB = NULL, pro = NULL, groups, z, likelihood = FALSE,
-  method_sigma_AB = c("analytic", "numeric"), updateA = FALSE)
+  method_sigma_AB = c("analytic", "numerical"), updateA = FALSE)
 }
 \arguments{
 \item{x_A}{A matrix of data for previous batch.}
@@ -36,7 +36,7 @@ batch.}
 \item{likelihood}{Logical for calculating likelihood of these two batches.}
 
 \item{method_sigma_AB}{One of \code{"analytic"} (default) or
-\code{"numeric"}, to choose the method of estimating the between-batch
+\code{"numerical"}, to choose the method of estimating the between-batch
 covariance for a cluster.}
 
 \item{updateA}{Logical for updating the parameters of batch A after

@@ -15,7 +15,7 @@
 #' @param pro Mixing proportions.
 #' @param abstol Stopping tolerance for likelihood.
 #' @param method_sigma_AB One of \code{"analytic"} (default) or
-#'   \code{"numeric"}, to choose the method of estimating the between-batch
+#'   \code{"numerical"}, to choose the method of estimating the between-batch
 #'   covariance for a cluster.
 #' @param updateA Logical, if \code{TRUE}, updates the parameters for the
 #'   previous batch after estimating the paramters for the current batch.
@@ -96,9 +96,6 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
   parameters$z <- z
   parameters$loglik <- loglik
 
-  #if (plot)
-  #  plotmbc(x = x, parameters = parameters, groups = groups, p = p)
-
   invisible(structure(parameters, class = "mbc"))
 }
 
@@ -106,7 +103,7 @@ function (x, groups = 2, maxiter = 500, likelihood = TRUE, verbose = FALSE, plot
 
 mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
   likelihood = TRUE, verbose = FALSE, plot = FALSE, abstol = 1e-3,
-  method_sigma_AB = c("analytic", "numeric"), updateA = FALSE)
+  method_sigma_AB = c("analytic", "numerical"), updateA = FALSE)
 {
   method_sigma_AB <- match.arg(method_sigma_AB)
   loglik <- vector()
@@ -115,6 +112,8 @@ mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
 
     if (verbose)
       cat("  Iteration ", times)
+
+    ## Maximisation step.
 
     parameters <- mstep_cond(x_B = x_B, x_A = x_A, z = z, mean_A = mean_A,
       sigma_AA = sigma_AA, sigma_AB = if (times == 1) NULL else parameters$cov,
@@ -144,16 +143,13 @@ mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
     if (verbose)
       cat("\n")
 
-    #z <- estep_cond(x_B = x_B, x_A = x_A, pro = parameters$pro, mean_A = mean_A,
-    #  mean_B = parameters$mean, sigma_AA = sigma_AA, sigma_AB = parameters$cov,
-    #  sigma_BB = parameters$sigma, groups = groups)
+    ## Expectation step.
 
     z <- estep_cond(x_B = x_B, x_A = x_A, pro = parameters$pro, mean_A = mean_A,
       mean_B = parameters$mean, sigma_AA = sigma_AA, sigma_AB = parameters$cov,
-      sigma_BB = parameters$sigma, groups = groups)#, oldz = attr(z, "unscaled"))
+      sigma_BB = parameters$sigma, groups = groups)
 
     if (plot){
-
       if (times == 1){
         plotobj <- plotmbcbigp(x_A = x_A, x_B = x_B, mean_A = mean_A, mean_B =
           parameters$mean, sigma_AA = sigma_AA, sigma_AB = parameters$cov,
@@ -163,10 +159,6 @@ mbc_cond <- function(x_A, x_B, mean_A, sigma_AA, z, pro, groups, maxiter = 500,
           sigma_AA = sigma_AA, sigma_AB = parameters$cov, sigma_BB
           = parameters$sigma, z = z, groups = groups)
       }
-      #par(mfrow = c(1, groups))
-      #for (k in 1:groups){
-      #  plot(z[, k], ylim = 0:1)
-      #}
     }
 
     if (likelihood & (times > 1)){

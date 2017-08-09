@@ -7,7 +7,7 @@
 mbcbigp(x, groups = 2, batches = NULL, batchindex = NULL,
   batchsize = NULL, maxiter = 50, plot = FALSE, likelihood = TRUE,
   verbose = TRUE, abstol = 1e-06, method_sigma_AB = c("analytic",
-  "numeric"), z = NULL, scorefun = bestseparated, updateA = FALSE)
+  "numerical"), z = NULL, scorefun = bestseparated, updateA = FALSE)
 }
 \arguments{
 \item{x}{Data frame or a matrix}
@@ -37,7 +37,7 @@ stopping criterion.}
 to 1e-6.}
 
 \item{method_sigma_AB}{One of \code{"analytic"} (default) or
-\code{"numeric"}, to choose the method of estimating the between-batch
+\code{"numerical"}, to choose the method of estimating the between-batch
 covariance for a cluster.}
 
 \item{z}{Initial cluster membership probabilities. Numeric matrix.}

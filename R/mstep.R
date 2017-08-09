@@ -58,7 +58,7 @@ function (x, z, groups = NULL, p = NULL)
 #' @param z A matrix of cluster memberships/probabilities.
 #' @param likelihood Logical for calculating likelihood of these two batches.
 #' @param method_sigma_AB One of \code{"analytic"} (default) or
-#'   \code{"numeric"}, to choose the method of estimating the between-batch
+#'   \code{"numerical"}, to choose the method of estimating the between-batch
 #'   covariance for a cluster.
 #' @param updateA Logical for updating the parameters of batch A after
 #'   estimating the parameters for batch B.
@@ -69,7 +69,7 @@ function (x, z, groups = NULL, p = NULL)
 mstep_cond <-
 function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
   sigma_BB = NULL, pro = NULL, groups, z, likelihood = FALSE, method_sigma_AB =
-  c("analytic", "numeric"), updateA = FALSE)
+  c("analytic", "numerical"), updateA = FALSE)
 {
   x_A <- data.matrix(x_A)
   x_B <- data.matrix(x_B)
@@ -82,8 +82,7 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
   sigma_BB <- if (is.null(sigma_BB))
     array(dim = c(ncol(x_B), ncol(x_B), groups))
   else sigma_BB
-  sigma_AB <-
-  cor_AB <- if (is.null(sigma_AB))
+  sigma_AB <- cor_AB <- if (is.null(sigma_AB))
     array(0, dim = c(ncol(x_A), ncol(x_B), groups))
   else sigma_AB
 
@@ -134,7 +133,7 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
         z = z[, k])
     }
     if (analytic){
-      tmp <- estimate_sigma_AB_michael(
+      tmp <- estimate_sigma_AB_analytic(
         x_A = x_A,
         x_B = x_B,
         mu_A = mean_A[, k],
@@ -148,7 +147,7 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
   }
 
   if (!analytic){
-    sigma_AB <- estimate_sigma_AB_corr(
+    sigma_AB <- estimate_sigma_AB_numerical(
       x_A = x_A,
       x_B = x_B,
       mu_A = mean_A,
@@ -163,6 +162,9 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
   dimnames(mu_B) <- list(colnames(x_B), 1:groups)
   dimnames(sigma_BB) <- list(colnames(x_B), colnames(x_B), 1:groups)
   dimnames(sigma_AB) <- list(colnames(x_A), colnames(x_B), 1:groups)
+
+  ## If `updateA` is TRUE, reverse the roles of A and B, updating the parameters
+  ## for batch A conditional on those from batch B.
 
   mu_A_new <- NA * mean_A
   sigma_AA_new <- NA * sigma_AA
@@ -192,18 +194,14 @@ function (x_A, x_B, mean_A, sigma_AA, sigma_AB = NULL, mean_B = NULL,
   }
 
   loglik <- if (likelihood){
-    calcloglik_split(
-      x_A = x_A,
-      x_B = x_B,
-      pro = pro,
-      mean_A = mean_A,
-      mean_B = mu_B,
-      sigma_AA = sigma_AA,
-      sigma_AB = sigma_AB,
-      sigma_BB = sigma_BB,
+    calcloglik_split(x_A = x_A, x_B = x_B, pro = pro, mean_A = mean_A, mean_B =
+      mu_B, sigma_AA = sigma_AA, sigma_AB = sigma_AB, sigma_BB = sigma_BB,
       groups = groups)
   } else NULL
-  structure(list(pro = pro, mean = mu_B, sigma = sigma_BB, cov =
-    structure(sigma_AB, cor = cor_AB), meanprev = mu_A_new, sigmaprev =
-    sigma_AA_new, groups = groups), class = "mbcparameters")
+
+  ## Output object of class `mbcparameters`.
+
+  structure(list(pro = pro, mean = mu_B, sigma = sigma_BB, cov = structure(
+    sigma_AB, cor = cor_AB), meanprev = mu_A_new, sigmaprev = sigma_AA_new,
+    groups = groups), class = "mbcparameters")
 }

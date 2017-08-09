@@ -8,18 +8,6 @@ function (x_B, mu_BgivenA, z, sigma_AB, sigma_AA)
     sigma_AB
 }
 
-estimate_sigma_BB_cathal2 <-
-function (x_B, mu_B, x_A, mu_A, sigma_AA, sigma_AB, z)
-{
-  w <- z / sum(z)
-  wsq <- sqrt(w)
-  sigma_AA_inverse <- solve(sigma_AA)
-  sigma_BA_by_sigma_AA_inverse <- t(sigma_AB) %*% sigma_AA_inverse
-  out <- crossprod(wsq * sweep(x_B, 2, mu_B)) + sigma_BA_by_sigma_AA_inverse %*%
-    sigma_AB + crossprod(wsq * (sweep(x_A, 2, mu_A)) %*% t(sigma_BA_by_sigma_AA_inverse))
-  out
-}
-
 estimate_sigma_BB_michael <-
 function (x_B, mu_B, x_A, mu_A, sigma_AA, sigma_AB, z)
 {
@@ -38,6 +26,9 @@ function (x_B, mu_B, x_A, mu_A, sigma_AA, sigma_AB, z)
   out
 }
 
+## Maximimum likelihood estimate of part of mean vector, given fixed values of
+## the rest of the mean vector, and covariance matrix.
+
 estimate_mu_B <-
 function (x_B, z, sigma_AB, sigma_AA, x_A, mu_A)
 {
@@ -53,31 +44,24 @@ function (x_B, z, sigma_AB, sigma_AA, x_A, mu_A)
   out
 }
 
-estimate_sigma_AB <-
-function (x_A, x_B, mu_A, mu_B, z)
-{
-  w <- z / sum(z)
-  out <- crossprod(sqrt(w) * sweep(x_A, 2, mu_A), sqrt(w) * sweep(x_B, 2, mu_B))
-  out <- 0 * out
-  rownames(out) <- colnames(x_A)
-  colnames(out) <- colnames(x_B)
-  out
-}
+## Numerically optimise the sigma_AB term by finding the correlations that
+## maximise the likelihood, given fixed covariance matrices sigma_AA and
+## sigma_BB.
 
-estimate_sigma_AB_simple <-
-function (x_A, x_B, z)
-{
-  var.wt(x = x_A, y = x_B, w = z)
-}
-
-estimate_sigma_AB_corr <-
+estimate_sigma_AB_numerical <-
 function (x_A, x_B, mu_A, mu_B, sigma_AA, sigma_BB, sigma_AB, pro, groups)
 {
+  ## Convert the off-diagonal block of covariance values to correlation values.
+
   rho_AB <- sigma_AB * NA
   for (k in 1:groups){
-    rho_AB[, , k] <- diag(1 / sqrt(diag(sigma_AA[, , k]))) %*% sigma_AB[, , k] %*%
-      diag(1 / sqrt(diag(sigma_BB[, , k])))
+    rho_AB[, , k] <- diag(1 / sqrt(diag(sigma_AA[, , k]))) %*%
+      sigma_AB[, , k] %*% diag(1 / sqrt(diag(sigma_BB[, , k])))
   }
+
+  ## Objective function to optimise. Joint Gaussian likelihood of both batches
+  ## as function of off-diagonal block correlations.
+
   f <- function (x, dims, ...){
     rho_AB <- array(x, dim = dims)
     sigma_AB <- rho_AB * NA
@@ -85,35 +69,42 @@ function (x_A, x_B, mu_A, mu_B, sigma_AA, sigma_BB, sigma_AB, pro, groups)
       sigma_AB[, , k] <- diag(sqrt(diag(sigma_AA[, , k]))) %*% rho_AB[, , k] %*%
         diag(sqrt(diag(sigma_BB[, , k])))
     }
-    -calcloglik_sigma_AB(x = sigma_AB, dims = dims, x_A = x_A, x_B = x_B, mean_A =
-      mu_A, mean_B = mu_B, sigma_AA = sigma_AA, sigma_BB = sigma_BB, pro = pro,
-      groups = groups)
+    -calcloglik_sigma_AB(x = sigma_AB, dims = dims, x_A = x_A, x_B = x_B,
+      mean_A = mu_A, mean_B = mu_B, sigma_AA = sigma_AA, sigma_BB = sigma_BB,
+      pro = pro, groups = groups)
   }
-  #print(f(rho_AB, dim(sigma_AB)))
+
+  ## Use `optim` to numerically solve for optimal correlations.
+
   est <- optim(par = rho_AB, fn = f, dims = dim(sigma_AB), x_A = x_A, x_B = x_B,
     mu_A = mu_A, mu_B = mu_B, sigma_AA = sigma_AA, sigma_BB = sigma_BB, pro =
-    pro, groups = groups)#, lower = -1, upper = 1)
+    pro, groups = groups)
+
+  ## Convert correlations back to covariance values.
+
   rho_AB_new <- array(est$par, dim = dim(sigma_AB))
-
-  #print(rho_AB_new)
-
-  #print(est$value)
-  rho_AB_new
   for (k in 1:groups){
-    sigma_AB[, , k] <- diag(sqrt(diag(sigma_AA[, , k]))) %*% rho_AB_new[, , k] %*%
-      diag(sqrt(diag(sigma_BB[, , k])))
+    sigma_AB[, , k] <- diag(sqrt(diag(sigma_AA[, , k]))) %*%
+      rho_AB_new[, , k] %*% diag(sqrt(diag(sigma_BB[, , k])))
   }
   dimnames(sigma_AB) <- list(colnames(x_A), colnames(x_B), 1:groups)
   sigma_AB
 }
 
-estimate_sigma_AB_michael <-
+## Analytic maximum likelihood for off-diagonal covariance matrix block.
+
+estimate_sigma_AB_analytic <-
 function(x_A, x_B, mu_A, mu_B, sigma_AA, sigma_BB, z)
 {
+  ## Calculate the required weighted cross products.
+
   w <- z / sum(z)
-  W_AA <- crossprod(sqrt(w) * sweep(x_A, 2, mu_A))
-  W_AB <- crossprod(sqrt(w) * sweep(x_A, 2, mu_A), sqrt(w) * sweep(x_B, 2,
-    mu_B))
+  wsq <- sqrt(w)
+  W_AA <- crossprod(wsq * sweep(x_A, 2, mu_A))
+  W_AB <- crossprod(wsq * sweep(x_A, 2, mu_A), wsq * sweep(x_B, 2, mu_B))
+
+  ## Calculate the estimate.
+
   W_AA_inverse <- solve(W_AA)
   out <- sigma_AA %*% W_AA_inverse %*% W_AB
 

@@ -26,7 +26,8 @@ function (x, pro, mean, sigma, groups)
 
 #' @rdname estep
 
-## TODO: try conditioning z matrix on more history
+## TODO: try conditioning z matrix on more history, see `estep_cond2` for
+## a bad attempt.
 
 estep_cond <-
 function (x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups)
@@ -43,7 +44,6 @@ function (x_A, x_B, pro, mean_A, mean_B, sigma_AA, sigma_AB, sigma_BB, groups)
   z <- exp(z)
   if (any(apply(z, 2L, function(x) all(x == 0)))){
     cat("\n")
-    #browser()
     stop("assigned all observations to zero in column of cluster memberships")
   }
   z / rowSums(z)

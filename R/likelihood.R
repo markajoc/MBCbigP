@@ -55,6 +55,9 @@ function (x, dims, ...)
 
 #' @rdname calcloglik
 
+## This function simply takes the likelihood trace as a vector from each batch
+## visited in an `mbcbigp` object and returns it in a list.
+
 logLik.mbcbigp <-
 function (object, ...)
 {
