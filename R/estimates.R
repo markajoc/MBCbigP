@@ -4,8 +4,8 @@ estimate_sigma_BB_cathal <-
 function (x_B, mu_BgivenA, z, sigma_AB, sigma_AA)
 {
   w <- z / sum(z)
-  crossprod(sqrt(w) * (x_B - mu_BgivenA)) + t(sigma_AB) %*% solve(sigma_AA) %*%
-    sigma_AB
+  crossprod(sqrt(w) * (x_B - mu_BgivenA)) + t(sigma_AB) %*% chol2inv(chol(
+    sigma_AA)) %*% sigma_AB
 }
 
 estimate_sigma_BB_michael <-
@@ -13,7 +13,7 @@ function (x_B, mu_B, x_A, mu_A, sigma_AA, sigma_AB, z)
 {
   w <- z / sum(z)
   wsq <- sqrt(w)
-  sigma_AA_inverse <- solve(sigma_AA)
+  sigma_AA_inverse <- chol2inv(chol(sigma_AA))
   x_A_cen <- wsq * sweep(x_A, 2, mu_A)
   x_B_cen <- wsq * sweep(x_B, 2, mu_B)
   W_AA <- crossprod(x_A_cen)
@@ -34,8 +34,8 @@ function (x_B, z, sigma_AB, sigma_AA, x_A, mu_A)
 {
   x_B <- data.matrix(x_B)
   x_A <- data.matrix(x_A)
-  out <- colMeans.weighted(x_B, w = z) - t(sigma_AB) %*% solve(sigma_AA) %*%
-    colMeans.weighted(sweep(x_A, 2, mu_A), w = z)
+  out <- colMeans.weighted(x_B, w = z) - t(sigma_AB) %*% chol2inv(chol(
+    sigma_AA)) %*% colMeans.weighted(sweep(x_A, 2, mu_A), w = z)
   if (any(is.na(out))){
     cat("\n")
     stop("conditional mean estimate contains NA/NaN")
@@ -105,7 +105,7 @@ function(x_A, x_B, mu_A, mu_B, sigma_AA, sigma_BB, z)
 
   ## Calculate the estimate.
 
-  W_AA_inverse <- solve(W_AA)
+  W_AA_inverse <- chol2inv(chol(W_AA))
   out <- sigma_AA %*% W_AA_inverse %*% W_AB
 
   if (any(is.na(out))){
