@@ -123,3 +123,23 @@ function (p, batches = NULL, batchsize = NULL)
     batches))
   batchindex
 }
+
+## Log-sum-exp; robust calculation.
+
+logsumexp <-
+function(x)
+{
+  maxx <- max(x)
+  cons <- if (max(abs(x)) > maxx)
+    min(x)
+  else maxx
+  log(sum(exp(v-c))) + c
+}
+
+## Restrict to range
+
+restrict <-
+function(x, min, max)
+{
+  pmax(pmin(x, max), min)
+}
